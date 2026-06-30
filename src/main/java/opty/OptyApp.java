@@ -5,12 +5,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import opty.config.DatabaseConfig;
 import opty.view.LoginController;
 
 public class OptyApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        DatabaseConfig.load();
+
         var loader = new FXMLLoader(getClass().getResource("/opty/view/fxml/login-view.fxml"));
         var root = (Parent) loader.load();
 

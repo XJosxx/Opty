@@ -1,5 +1,10 @@
 package opty.config;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -19,8 +24,40 @@ public class DatabaseConfig {
     private static String user = DEFAULT_USER;
     private static String pass = DEFAULT_PASS;
     private static boolean useSSL = false;
+    private static boolean loaded = false;
 
-    private DatabaseConfig() {}
+    private DatabaseConfig() {
+    }
+
+    public static void load() {
+        if (loaded) return;
+        var path = Paths.get("config/config.properties");
+        if (Files.exists(path)) {
+            loadFromFile(path);
+        } else {
+            try (var is = DatabaseConfig.class.getClassLoader().getResourceAsStream("config.properties")) {
+                if (is != null) loadFromStream(is);
+            } catch (IOException e) {
+                System.err.println("[Opty] No se encontró config.properties. Usando defaults locales.");
+            }
+        }
+        loaded = true;
+    }
+
+    private static void loadFromFile(Path path) {
+        try (var is = Files.newInputStream(path)) {
+            loadFromStream(is);
+            System.out.println("[Opty] Configuración cargada desde " + path.toAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("[Opty] Error al leer " + path + ": " + e.getMessage());
+        }
+    }
+
+    private static void loadFromStream(InputStream is) throws IOException {
+        var props = new Properties();
+        props.load(is);
+        configureFromProperties(props);
+    }
 
     public static void configure(String host, int port, String db, String user, String pass, boolean useSSL) {
         DatabaseConfig.host = host;
@@ -29,6 +66,7 @@ public class DatabaseConfig {
         DatabaseConfig.user = user;
         DatabaseConfig.pass = pass;
         DatabaseConfig.useSSL = useSSL;
+        loaded = true;
     }
 
     public static void configureFromProperties(Properties props) {
