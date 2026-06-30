@@ -1,6 +1,6 @@
-# Opty
+# Opty — Sistema de Gestión Óptica
 
-**Opty** es un sistema de escritorio diseñado para la gestión integral de una cadena de ópticas con múltiples sucursales. El proyecto nace como trabajo práctico del curso Base de Datos I de la carrera Ingeniería de Software, y busca reflejar cómo un modelo de datos bien estructurado puede sostenerse por sí mismo mediante disparadores, procedimientos almacenados y vistas que trasladan la lógica de negocio directamente a la base de datos.
+Aplicación de escritorio JavaFX + FXML + CSS para la gestión integral de una cadena de ópticas multiclínica. Proyecto académico de Base de Datos I — Ingeniería de Software.
 
 ## Modelo de negocio
 
@@ -10,72 +10,68 @@ En paralelo, la óptica gestiona su inventario de insumos (lunas, monturas, acce
 
 Todo está atado a una sucursal y a un usuario responsable, lo que permite tener visibilidad granular de qué ocurre en cada tienda, quién lo hizo y cuándo.
 
-## Arquitectura del software
+## Arquitectura
 
-El sistema sigue una arquitectura en cuatro capas:
+4 capas siguiendo SOLID y POO:
 
-- **model** — Representación de las entidades del negocio como objetos Java simples (POJO). Cada clase refleja una tabla de la base de datos.
-- **repository** — Capa de acceso a datos mediante JDBC. Cada repositorio expone operaciones CRUD y consultas específicas, apoyándose en interfaces para mantener el desacoplamiento.
-- **service** — Lógica de negocio pura. Los servicios orquestan operaciones que involucran múltiples repositorios, aplican validaciones y garantizan idempotencia en procesos críticos como la emisión de ventas.
-- **view** — Interfaz gráfica construida con JavaFX y FXML. Separada en controladores y archivos de descripción de escenas, con estilos CSS que siguen una línea de diseño limpia, moderna y de alto contraste, pensada para entornos clínicos y contables.
-
-## Manual de compilación
-
-### Requisitos
-
-- Java Development Kit 25 o superior
-- Apache Maven 3.9 o superior
-- MySQL 8.0 o superior (con base de datos `optica_db` creada y los scripts SQL ejecutados)
-- Conexión de red al servidor MySQL (por defecto espera una instancia en `localhost:3306`, configurable)
-
-### Preparar la base de datos
-
-Ejecutar los scripts en orden dentro de tu cliente MySQL:
-
-```sql
-source 01_tablas.sql
-source 02_logica.sql
-source 03_datos.sql
+```
+model → repository → service → view
 ```
 
+- **model** (15 entidades + 14 enums) — POJOs con validación defensiva en setters.
+- **repository** (10 interfaces + 12 impls JDBC) — CrudRepository genérico, llamadas a SPs de BD.
+- **service** (14 interfaces + 14 impls) — Lógica de negocio con idempotencia.
+- **view** (FXML + Controladores + CSS) — Login, Dashboard con sidebar de navegación.
 
-### Compilar
+## Estado del proyecto
+
+| Fase | Descripción | Estado |
+|------|-------------|--------|
+| 1 | Scaffold Maven, modelos, enums, CSS base, SQL scripts | ✅ |
+| 2 | Repositorios JDBC con SPs | ✅ |
+| 3 | Servicios con lógica de negocio | ✅ |
+| 4 | Login + MainView + Dashboard (FXML+CSS+Controladores) | ✅ |
+| 5 | Módulo Pacientes + Consultas | ⏳ |
+| 6 | Módulo Ventas | ⏳ |
+| 7 | Módulo Compras | ⏳ |
+| 8 | Módulo Inventario (productos, insumos, kardex) | ⏳ |
+| 9 | Módulo Usuarios (solo ADMIN) | ⏳ |
+| 10 | Módulo Órdenes de Trabajo + alertas vencidas | ⏳ |
+
+## Requisitos
+
+- Java Development Kit 25
+- Apache Maven 3.9+
+- MySQL 8.0+ con base `optica_db` poblada
+- Conexión de red al servidor MySQL
+
+## Configurar conexión
+
+La base de datos ya está en un servidor compartido. Solo necesitas crear `config/config.properties` a partir de la plantilla:
+
+```bash
+cp config/config.properties.example config/config.properties
+# Windows: copiar config\config.properties.example config\config.properties
+```
+
+### Usuarios de prueba
+
+| Usuario | Contraseña | Rol |
+|---------|-----------|-----|
+| admin | admin123 | ADMIN |
+| vendedor1 | vende123 | VENDEDOR |
+| optometra1 | opto123 | OPTOMETRA |
+
+## Compilar y ejecutar
 
 ```bash
 mvn clean compile
-```
-
-### Ejecutar
-
-```bash
 mvn javafx:run
 ```
 
-También se puede generar un JAR ejecutable:
+## Stack tecnológico
 
-```bash
-mvn package
-```
-
-El JAR se encontrará en `target/opty-desktop-1.0.0.jar`.
-
-### Configurar la conexión a la base de datos
-
-La conexión se define en la clase `DatabaseConfig`. Por defecto intenta conectar a `localhost:3306/optica_db`. Si tu servidor es remoto (por ejemplo, Aiven):
-
-```
-Host: mysql-xxxx.aivencloud.com
-Puerto: 16233
-Base: optica_db
-Usuario: avnadmin
-Contraseña: <tu-contraseña>
-SSL: requerido
-```
-
-Los valores se pueden cambiar directamente en la clase o cargar desde un archivo de propiedades externo.
-
-### Notas
-
-- Asegúrate de tener el conector MySQL disponible (Maven lo descarga automáticamente).
-- La aplicación usa módulos de JavaFX; el plugin `javafx-maven-plugin` se encarga de resolver el módulo-path automáticamente.
-- Los scripts SQL se encuentran en la carpeta `sql/` del repositorio.
+- Java 25, JavaFX 23, Maven 3.9.11
+- mysql-connector-j 9.3 (JDBC plano, sin Spring/JPA/Hibernate)
+- ControlsFX 11.2.1
+- MySQL 8.0+ (local o Aiven)
