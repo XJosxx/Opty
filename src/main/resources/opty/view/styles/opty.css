@@ -1,0 +1,306 @@
+/* ============================================================
+   Opty CSS — Paleta de diseño clínico/contable moderno
+   ============================================================ */
+
+/* --- Global --- */
+.root {
+    -fx-font-family: 'Segoe UI', 'Inter', sans-serif;
+    -fx-background-color: #f8fafc;
+    -fx-font-size: 13px;
+}
+
+/* --- Cards flotantes --- */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);
+    -fx-padding: 20px;
+}
+
+/* --- Títulos de sección --- */
+.section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #334155;
+    -fx-uppercase: true;
+    -fx-letter-spacing: 1px;
+}
+
+.section-subtitle {
+    -fx-font-size: 12px;
+    -fx-font-weight: 400;
+    -fx-text-fill: #64748b;
+}
+
+/* --- Metric numbers --- */
+.metric-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+}
+
+.metric-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #64748b;
+    -fx-uppercase: true;
+}
+
+.metric-positive {
+    -fx-text-fill: #10b981;
+}
+
+.metric-neutral {
+    -fx-text-fill: #0076ce;
+}
+
+.metric-negative {
+    -fx-text-fill: #ef4444;
+}
+
+/* --- Botón primario --- */
+.btn-primary {
+    -fx-background-color: #0076ce;
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 20px;
+    -fx-cursor: hand;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #005fa3;
+}
+
+.btn-secondary {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0076ce;
+    -fx-border-color: #0076ce;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-font-weight: 600;
+    -fx-padding: 8px 20px;
+    -fx-cursor: hand;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #f0f7ff;
+}
+
+.btn-danger {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 20px;
+    -fx-cursor: hand;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #dc2626;
+}
+
+/* --- Inputs --- */
+.text-field, .password-field {
+    -fx-background-color: #f0f2fe;
+    -fx-text-fill: #1e293b;
+    -fx-padding: 8px 12px;
+    -fx-background-radius: 6px;
+    -fx-border: none;
+    -fx-font-size: 13px;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-background-color: #e8eafc;
+    -fx-border-color: #0076ce;
+    -fx-border-width: 2px;
+    -fx-border-radius: 6px;
+}
+
+.combo-box {
+    -fx-background-color: #f0f2fe;
+    -fx-background-radius: 6px;
+    -fx-padding: 4px;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: #f0f2fe;
+    -fx-text-fill: #1e293b;
+}
+
+.combo-box:focused {
+    -fx-background-color: #e8eafc;
+    -fx-border-color: #0076ce;
+    -fx-border-width: 2px;
+    -fx-border-radius: 6px;
+}
+
+/* --- DatePicker --- */
+.date-picker {
+    -fx-background-color: #f0f2fe;
+    -fx-background-radius: 6px;
+}
+
+.date-picker:focused {
+    -fx-border-color: #0076ce;
+    -fx-border-width: 2px;
+    -fx-border-radius: 6px;
+}
+
+.date-picker .text-field {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6px 0 0 6px;
+}
+
+/* --- Tabla (TableView) --- */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 6px;
+}
+
+.table-view .column-header {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-text-fill: #334155;
+    -fx-font-weight: 600;
+    -fx-font-size: 12px;
+    -fx-padding: 10px;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: #f1f5f9;
+}
+
+.table-view .table-row-cell:odd {
+    -fx-background-color: #fafbfc;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: #f0f7ff;
+}
+
+/* --- Badges de estado --- */
+.badge {
+    -fx-background-radius: 12px;
+    -fx-padding: 2px 10px;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+}
+
+.badge-active {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+}
+
+.badge-inactive {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #991b1b;
+}
+
+.badge-pending {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #92400e;
+}
+
+.badge-success {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+}
+
+.badge-warning {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #92400e;
+}
+
+.badge-danger {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #991b1b;
+}
+
+.badge-info {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1e40af;
+}
+
+/* Badges específicos por estado de orden de trabajo */
+.badge-entregado {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+}
+
+.badge-laboratorio {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1e40af;
+}
+
+.badge-listo {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #92400e;
+}
+
+.badge-pendiente {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #991b1b;
+}
+
+/* --- Separadores --- */
+.separator {
+    -fx-background-color: #e2e8f0;
+}
+
+/* --- ScrollPane --- */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border: none;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* --- Labels de formulario --- */
+.form-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #475569;
+    -fx-padding: 0 0 4px 0;
+}
+
+/* --- Grid / Layout spacing --- */
+.grid {
+    -fx-hgap: 15px;
+    -fx-vgap: 15px;
+}
+
+/* --- Tabs --- */
+.tab-pane {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab-header-area {
+    -fx-background-color: transparent;
+}
+
+.tab {
+    -fx-background-color: transparent;
+    -fx-text-fill: #64748b;
+    -fx-font-weight: 600;
+    -fx-padding: 8px 16px;
+}
+
+.tab:selected {
+    -fx-background-color: white;
+    -fx-border-color: #0076ce;
+    -fx-border-width: 0 0 2px 0;
+    -fx-text-fill: #0076ce;
+}
+
+/* --- Tooltip --- */
+.tooltip {
+    -fx-background-color: #1e293b;
+    -fx-text-fill: white;
+    -fx-background-radius: 4px;
+    -fx-padding: 6px 10px;
+    -fx-font-size: 12px;
+}
