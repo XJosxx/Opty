@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="root" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.MainController">
+    <left>
+        <VBox fx:id="sidebar" minWidth="220" prefWidth="220" styleClass="sidebar">
+            <VBox alignment="CENTER" spacing="4" styleClass="sidebar-header">
+                <Label styleClass="sidebar-title" text="Opty" />
+                <Label fx:id="userLabel" styleClass="sidebar-user" text="Usuario" />
+            </VBox>
+            <VBox spacing="2" styleClass="sidebar-nav">
+                <Button fx:id="btnDashboard" onAction="#onDashboard" styleClass="sidebar-btn, sidebar-btn-active" text="Dashboard" />
+                <Button fx:id="btnPacientes" onAction="#onPacientes" styleClass="sidebar-btn" text="Pacientes" />
+                <Button fx:id="btnVentas" onAction="#onVentas" styleClass="sidebar-btn" text="Ventas" />
+                <Button fx:id="btnCompras" onAction="#onCompras" styleClass="sidebar-btn" text="Compras" />
+                <Button fx:id="btnInventario" onAction="#onInventario" styleClass="sidebar-btn" text="Inventario" />
+                <Button fx:id="btnUsuarios" onAction="#onUsuarios" styleClass="sidebar-btn" text="Usuarios" />
+                <Button fx:id="btnOrdenes" onAction="#onOrdenes" styleClass="sidebar-btn" text="Órdenes Trabajo" />
+            </VBox>
+            <VBox alignment="BOTTOM_LEFT" styleClass="sidebar-footer" VBox.vgrow="ALWAYS">
+                <Button onAction="#onLogout" styleClass="sidebar-btn, sidebar-btn-logout" text="Cerrar Sesión" />
+            </VBox>
+        </VBox>
+    </left>
+    <center>
+        <AnchorPane styleClass="main-content">
+            <VBox spacing="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+                <HBox alignment="CENTER_LEFT" spacing="10" styleClass="topbar">
+                    <Label fx:id="moduleTitle" styleClass="topbar-title" text="Dashboard" />
+                    <Label fx:id="storeLabel" styleClass="topbar-store" text="" />
+                </HBox>
+                <StackPane fx:id="contentArea" styleClass="content-area" VBox.vgrow="ALWAYS" />
+            </VBox>
+        </AnchorPane>
+    </center>
+</BorderPane>

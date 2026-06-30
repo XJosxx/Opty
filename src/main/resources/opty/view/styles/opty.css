@@ -304,3 +304,123 @@
     -fx-padding: 6px 10px;
     -fx-font-size: 12px;
 }
+
+/* --- Login --- */
+.login-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0076ce;
+}
+
+.login-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #64748b;
+    -fx-padding: 0 0 10px 0;
+}
+
+.error-label {
+    -fx-text-fill: #ef4444;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+    -fx-background-color: #1e293b;
+    -fx-padding: 0;
+}
+
+.sidebar-header {
+    -fx-padding: 24px 20px 20px 20px;
+    -fx-border-color: #334155;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.sidebar-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #ffffff;
+}
+
+.sidebar-user {
+    -fx-font-size: 12px;
+    -fx-text-fill: #94a3b8;
+}
+
+.sidebar-nav {
+    -fx-padding: 12px 10px;
+}
+
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 10px 14px;
+    -fx-background-radius: 6px;
+    -fx-alignment: center-left;
+    -fx-cursor: hand;
+    -fx-max-width: Infinity;
+}
+
+.sidebar-btn:hover {
+    -fx-background-color: #334155;
+    -fx-text-fill: #ffffff;
+}
+
+.sidebar-btn-active {
+    -fx-background-color: #0076ce;
+    -fx-text-fill: #ffffff;
+}
+
+.sidebar-btn-active:hover {
+    -fx-background-color: #005fa3;
+}
+
+.sidebar-footer {
+    -fx-padding: 12px 10px;
+    -fx-border-color: #334155;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.sidebar-btn-logout {
+    -fx-text-fill: #f87171;
+}
+
+.sidebar-btn-logout:hover {
+    -fx-background-color: #7f1d1d;
+    -fx-text-fill: #ffffff;
+}
+
+/* --- Topbar --- */
+.topbar {
+    -fx-background-color: #ffffff;
+    -fx-padding: 16px 24px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.topbar-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1e293b;
+}
+
+.topbar-store {
+    -fx-font-size: 12px;
+    -fx-text-fill: #94a3b8;
+}
+
+/* --- Main content area --- */
+.main-content {
+    -fx-background-color: #f8fafc;
+}
+
+.content-area {
+    -fx-background-color: #f8fafc;
+}
+
+/* --- Dashboard background --- */
+.dashboard-root {
+    -fx-background-color: #f8fafc;
+}

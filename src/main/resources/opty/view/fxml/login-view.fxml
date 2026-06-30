@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane styleClass="root" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.LoginController">
+    <VBox alignment="CENTER" spacing="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <VBox alignment="CENTER" maxWidth="400" spacing="20" styleClass="card" stylesheets="@/opty/view/styles/opty.css">
+            <Label styleClass="login-title" text="Opty" />
+            <Label styleClass="login-subtitle" text="Sistema de Gestión Óptica" />
+            <VBox spacing="6" maxWidth="Infinity">
+                <Label styleClass="form-label" text="Usuario" />
+                <TextField fx:id="usernameField" maxWidth="Infinity" promptText="Ingrese su usuario" />
+            </VBox>
+            <VBox spacing="6" maxWidth="Infinity">
+                <Label styleClass="form-label" text="Contraseña" />
+                <PasswordField fx:id="passwordField" maxWidth="Infinity" onAction="#handleLogin" promptText="Ingrese su contraseña" />
+            </VBox>
+            <Label fx:id="errorLabel" managed="false" styleClass="error-label" text=" " visible="false" wrapText="true" />
+            <Button maxWidth="Infinity" onAction="#handleLogin" styleClass="btn-primary" text="Iniciar Sesión" />
+        </VBox>
+    </VBox>
+</AnchorPane>

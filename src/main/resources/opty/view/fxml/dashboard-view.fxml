@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.DashboardController">
+    <AnchorPane styleClass="dashboard-root">
+        <VBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+            <GridPane hgap="20" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="200" percentWidth="25" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="200" percentWidth="25" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="200" percentWidth="25" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="200" percentWidth="25" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="NEVER" />
+                </rowConstraints>
+                <VBox spacing="4" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label fx:id="lblVentasHoy" styleClass="metric-value, metric-neutral" text="S/ 0.00" />
+                    <Label styleClass="metric-label" text="VENTAS HOY" />
+                </VBox>
+                <VBox spacing="4" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label fx:id="lblPacientes" styleClass="metric-value, metric-positive" text="0" />
+                    <Label styleClass="metric-label" text="PACIENTES REGISTRADOS" />
+                </VBox>
+                <VBox spacing="4" styleClass="card" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                    <Label fx:id="lblBajoStock" styleClass="metric-value, metric-negative" text="0" />
+                    <Label styleClass="metric-label" text="PRODUCTOS BAJO STOCK" />
+                </VBox>
+                <VBox spacing="4" styleClass="card" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                    <Label fx:id="lblOrdenesPendientes" styleClass="metric-value, metric-warning" text="0" />
+                    <Label styleClass="metric-label" text="ÓRDENES PENDIENTES" />
+                </VBox>
+            </GridPane>
+            <GridPane hgap="20" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="300" percentWidth="50" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="300" percentWidth="50" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="ALWAYS" />
+                </rowConstraints>
+                <VBox spacing="12" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label styleClass="section-title" text="ÓRDENES VENCIDAS" />
+                    <VBox fx:id="ordenesVencidasList" spacing="6" />
+                </VBox>
+                <VBox spacing="12" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label styleClass="section-title" text="PACIENTES RECIENTES" />
+                    <VBox fx:id="pacientesRecientesList" spacing="6" />
+                </VBox>
+            </GridPane>
+        </VBox>
+    </AnchorPane>
+</ScrollPane>
