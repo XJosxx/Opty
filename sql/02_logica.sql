@@ -334,7 +334,7 @@ BEGIN
     ELSE
         START TRANSACTION;
 
-        SET v_ticket = CONCAT('TK-', UNIX_TIMESTAMP());
+        SET v_ticket = CONCAT('TK-', UNIX_TIMESTAMP(), '-', FLOOR(100 + RAND() * 900));
 
         -- 2. Crear cabecera (los triggers calculan los montos)
         INSERT INTO ventas_cabecera
@@ -404,7 +404,7 @@ BEGIN
 
     START TRANSACTION;
 
-    SET v_numero_orden = CONCAT('OC-', UNIX_TIMESTAMP());
+    SET v_numero_orden = CONCAT('OC-', UNIX_TIMESTAMP(), '-', FLOOR(100 + RAND() * 900));
 
     -- 1. Crear cabecera (monto_total lo actualiza el trigger)
     INSERT INTO compras_cabecera

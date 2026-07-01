@@ -1,22 +1,24 @@
 package opty.config;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatabaseConfig {
 
-    private static final String DEFAULT_HOST = "localhost";
+    private static final String DEFAULT_HOST = "127.0.0.1";
     private static final int DEFAULT_PORT = 3306;
     private static final String DEFAULT_DB = "optica_db";
     private static final String DEFAULT_USER = "root";
-    private static final String DEFAULT_PASS = "";
+    private static final String DEFAULT_PASS = "root";
 
     private static String host = DEFAULT_HOST;
     private static int port = DEFAULT_PORT;
@@ -26,10 +28,12 @@ public class DatabaseConfig {
     private static boolean useSSL = false;
     private static boolean loaded = false;
 
+    private static HikariDataSource dataSource;
+
     private DatabaseConfig() {
     }
 
-    public static void load() {
+    public static synchronized void load() {
         if (loaded) return;
         var path = Paths.get("config/config.properties");
         if (Files.exists(path)) {
@@ -41,6 +45,7 @@ public class DatabaseConfig {
                 System.err.println("[Opty] No se encontró config.properties. Usando defaults locales.");
             }
         }
+        initDataSource();
         loaded = true;
     }
 
@@ -59,13 +64,19 @@ public class DatabaseConfig {
         configureFromProperties(props);
     }
 
-    public static void configure(String host, int port, String db, String user, String pass, boolean useSSL) {
+    public static synchronized void configure(String host, int port, String db, String user, String pass, boolean useSSL) {
         DatabaseConfig.host = host;
         DatabaseConfig.port = port;
         DatabaseConfig.db = db;
         DatabaseConfig.user = user;
         DatabaseConfig.pass = pass;
         DatabaseConfig.useSSL = useSSL;
+
+        if (dataSource != null) {
+            dataSource.close();
+            dataSource = null;
+        }
+        initDataSource();
         loaded = true;
     }
 
@@ -78,7 +89,9 @@ public class DatabaseConfig {
         useSSL = Boolean.parseBoolean(props.getProperty("db.useSSL", "false"));
     }
 
-    public static Connection getConnection() throws SQLException {
+    private static synchronized void initDataSource() {
+        if (dataSource != null) return;
+
         var url = new StringBuilder("jdbc:mysql://")
                 .append(host).append(":").append(port).append("/")
                 .append(db)
@@ -87,6 +100,39 @@ public class DatabaseConfig {
                 .append("&allowPublicKeyRetrieval=").append(!useSSL)
                 .toString();
 
-        return DriverManager.getConnection(url, user, pass);
+        var config = new HikariConfig();
+        config.setJdbcUrl(url);
+        config.setUsername(user);
+        config.setPassword(pass);
+
+        // pool configuration
+        config.setMaximumPoolSize(10);
+        config.setMinimumIdle(2);
+        config.setIdleTimeout(30000);
+        config.setConnectionTimeout(10000);
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+
+        // cache settings for MySQL Prep Statements
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.addDataSourceProperty("useServerPrepStmts", "true");
+
+        dataSource = new HikariDataSource(config);
+        System.out.println("[Opty] HikariCP Connection Pool inicializado correctamente.");
+    }
+
+    public static Connection getConnection() throws SQLException {
+        if (!loaded || dataSource == null) {
+            load();
+        }
+        return dataSource.getConnection();
+    }
+
+    public static synchronized void shutdown() {
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+            System.out.println("[Opty] HikariCP Connection Pool cerrado.");
+        }
     }
 }
