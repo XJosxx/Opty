@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.InventarioController">
+    <AnchorPane styleClass="dashboard-root">
+        <VBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+            <!-- Header Módulo -->
+            <HBox spacing="15" alignment="CENTER_LEFT" styleClass="card">
+                <VBox HBox.hgrow="ALWAYS">
+                    <Label styleClass="section-title" text="CONTROL DE INVENTARIO Y STOCK" />
+                    <Label styleClass="section-subtitle" text="Supervisión física de productos terminados, insumos y movimientos históricos de almacén (Kardex)." />
+                </VBox>
+            </HBox>
+            
+            <!-- Contenedor Principal Tabulado -->
+            <VBox styleClass="card" VBox.vgrow="ALWAYS">
+                <TabPane fx:id="tabPaneInventario" VBox.vgrow="ALWAYS">
+                    <tabs>
+                        
+                        <!-- TAB 1: PRODUCTOS TERMINADOS -->
+                        <Tab text="Productos Terminados" closable="false">
+                            <VBox spacing="15" style="-fx-padding: 20px 0 0 0;">
+                                <HBox spacing="15" alignment="CENTER_LEFT">
+                                    <TextField fx:id="txtBuscarProducto" promptText="Buscar producto por nombre..." HBox.hgrow="ALWAYS" />
+                                    <Button onAction="#onBuscarProducto" styleClass="btn-secondary" text="Filtrar" />
+                                </HBox>
+                                
+                                <TableView fx:id="tableProductos" VBox.vgrow="ALWAYS" prefHeight="400.0">
+                                    <columns>
+                                        <TableColumn fx:id="colProdCodigo" text="Código" prefWidth="100.0" />
+                                        <TableColumn fx:id="colProdNombre" text="Nombre" prefWidth="250.0" />
+                                        <TableColumn fx:id="colProdCategoria" text="Categoría" prefWidth="150.0" />
+                                        <TableColumn fx:id="colProdPrecio" text="Precio Venta" prefWidth="120.0" />
+                                        <TableColumn fx:id="colProdStock" text="Stock Actual" prefWidth="110.0" />
+                                        <TableColumn fx:id="colProdMinimo" text="Mínimo" prefWidth="90.0" />
+                                        <TableColumn fx:id="colProdEstado" text="Estado Stock" prefWidth="120.0" />
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </Tab>
+                        
+                        <!-- TAB 2: INSUMOS / MATERIA PRIMA -->
+                        <Tab text="Insumos y Cristales" closable="false">
+                            <VBox spacing="15" style="-fx-padding: 20px 0 0 0;">
+                                <HBox spacing="15" alignment="CENTER_LEFT">
+                                    <TextField fx:id="txtBuscarInsumo" promptText="Buscar insumo por nombre..." HBox.hgrow="ALWAYS" />
+                                    <Button onAction="#onBuscarInsumo" styleClass="btn-secondary" text="Filtrar" />
+                                </HBox>
+                                
+                                <TableView fx:id="tableInsumos" VBox.vgrow="ALWAYS" prefHeight="400.0">
+                                    <columns>
+                                        <TableColumn fx:id="colInsCodigo" text="Código" prefWidth="100.0" />
+                                        <TableColumn fx:id="colInsNombre" text="Nombre Insumo" prefWidth="250.0" />
+                                        <TableColumn fx:id="colInsCategoria" text="Categoría" prefWidth="150.0" />
+                                        <TableColumn fx:id="colInsStock" text="Stock Actual" prefWidth="120.0" />
+                                        <TableColumn fx:id="colInsMinimo" text="Mínimo" prefWidth="100.0" />
+                                        <TableColumn fx:id="colInsEstado" text="Estado Stock" prefWidth="120.0" />
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </Tab>
+                        
+                        <!-- TAB 3: KARDEX (HISTORIAL FÍSICO) -->
+                        <Tab text="Kardex de Movimientos" closable="false">
+                            <VBox spacing="15" style="-fx-padding: 20px 0 0 0;">
+                                <HBox spacing="15" alignment="CENTER_LEFT">
+                                    <ComboBox fx:id="comboFiltroMovimiento" promptText="Tipo Movimiento" prefWidth="180.0" />
+                                    <Button onAction="#onFiltrarKardex" styleClass="btn-secondary" text="Filtrar Kardex" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Button onAction="#onCargarDatos" styleClass="btn-primary" text="Actualizar Vista" />
+                                </HBox>
+                                
+                                <TableView fx:id="tableKardex" VBox.vgrow="ALWAYS" prefHeight="400.0">
+                                    <columns>
+                                        <TableColumn fx:id="colKardexFecha" text="Fecha/Hora" prefWidth="150.0" />
+                                        <TableColumn fx:id="colKardexItem" text="Item / Producto / Insumo" prefWidth="280.0" />
+                                        <TableColumn fx:id="colKardexTipo" text="Movimiento" prefWidth="120.0" />
+                                        <TableColumn fx:id="colKardexMotivo" text="Motivo / Descripción" prefWidth="250.0" />
+                                        <TableColumn fx:id="colKardexCantidad" text="Cant." prefWidth="80.0" />
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </Tab>
+                        
+                    </tabs>
+                </TabPane>
+            </VBox>
+        </VBox>
+    </AnchorPane>
+</ScrollPane>
