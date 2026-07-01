@@ -1,10 +1,21 @@
 package opty.model.entity;
 
-import java.math.BigDecimal;
-import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class CompraDetalle {
 
+    @EqualsAndHashCode.Include
     private Integer id;
     private Integer compraId;
     private Integer insumoId;
@@ -12,63 +23,33 @@ public class CompraDetalle {
     private BigDecimal precioUnitario;
     private BigDecimal subtotal;
 
-    public CompraDetalle() {}
-
-    public CompraDetalle(Integer id, Integer compraId, Integer insumoId, Integer cantidad,
-                         BigDecimal precioUnitario, BigDecimal subtotal) {
-        this.id = id;
-        setCompraId(compraId);
-        setInsumoId(insumoId);
-        setCantidad(cantidad);
-        setPrecioUnitario(precioUnitario);
-        setSubtotal(subtotal);
-    }
-
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-
-    public Integer getCompraId() { return compraId; }
     public void setCompraId(Integer compraId) {
         if (compraId == null) throw new IllegalArgumentException("La compra asociada no puede ser nula");
         this.compraId = compraId;
     }
 
-    public Integer getInsumoId() { return insumoId; }
     public void setInsumoId(Integer insumoId) {
         if (insumoId == null) throw new IllegalArgumentException("El insumo no puede ser nulo");
         this.insumoId = insumoId;
     }
 
-    public Integer getCantidad() { return cantidad; }
     public void setCantidad(Integer cantidad) {
         if (cantidad == null) throw new IllegalArgumentException("La cantidad no puede ser nula");
         if (cantidad <= 0) throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
         this.cantidad = cantidad;
     }
 
-    public BigDecimal getPrecioUnitario() { return precioUnitario; }
     public void setPrecioUnitario(BigDecimal precioUnitario) {
         if (precioUnitario == null) throw new IllegalArgumentException("El precio unitario no puede ser nulo");
         if (precioUnitario.compareTo(BigDecimal.ZERO) <= 0) throw new IllegalArgumentException("El precio unitario debe ser mayor a cero");
         this.precioUnitario = precioUnitario;
     }
 
-    public BigDecimal getSubtotal() { return subtotal; }
     public void setSubtotal(BigDecimal subtotal) {
         if (subtotal == null) throw new IllegalArgumentException("El subtotal no puede ser nulo");
         if (subtotal.compareTo(BigDecimal.ZERO) < 0) throw new IllegalArgumentException("El subtotal no puede ser negativo");
         this.subtotal = subtotal;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CompraDetalle that)) return false;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() { return Objects.hash(id); }
 
     @Override
     public String toString() { return "Detalle compra #" + compraId + " - insumo #" + insumoId; }
