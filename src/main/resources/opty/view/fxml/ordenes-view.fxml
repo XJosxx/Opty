@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.OrdenesController">
+    <AnchorPane styleClass="dashboard-root">
+        <HBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+            
+            <!-- Columna Izquierda: Buscador y Lista de Órdenes -->
+            <VBox spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="480.0">
+                <Label styleClass="section-title" text="ÓRDENES DE TRABAJO (LABORATORIO)" />
+                
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="comboFiltroEstado" prefWidth="180.0" promptText="Filtrar por Estado" />
+                    <Button onAction="#onFiltrarOrdenes" styleClass="btn-secondary" text="Filtrar" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button onAction="#onCargarOrdenes" styleClass="btn-secondary" text="Actualizar" />
+                </HBox>
+                
+                <TableView fx:id="tableOrdenes" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colOrdId" text="ID" prefWidth="60.0" />
+                        <TableColumn fx:id="colOrdTipo" text="Trabajo" prefWidth="130.0" />
+                        <TableColumn fx:id="colOrdPrometida" text="F. Prometida" prefWidth="130.0" />
+                        <TableColumn fx:id="colOrdEstado" text="Estado" prefWidth="120.0" />
+                    </columns>
+                </TableView>
+            </VBox>
+            
+            <!-- Columna Derecha: Detalles de la Orden y Acciones -->
+            <StackPane HBox.hgrow="ALWAYS" prefWidth="680.0">
+                <!-- Panel de Detalles -->
+                <VBox fx:id="paneDetalle" spacing="20" styleClass="card" visible="false">
+                    <HBox alignment="CENTER_LEFT">
+                        <VBox HBox.hgrow="ALWAYS">
+                            <Label fx:id="lblOtId" styleClass="section-title" text="DETALLE DE ORDEN #-" />
+                            <Label fx:id="lblOtTipo" styleClass="section-subtitle" text="LENTES DE MEDIDA" />
+                        </VBox>
+                        <Label fx:id="lblOtEstadoBadge" text="PENDIENTE" />
+                    </HBox>
+                    
+                    <Separator />
+                    
+                    <!-- Fechas y Venta Asociada -->
+                    <GridPane hgap="15" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="30" />
+                            <ColumnConstraints percentWidth="70" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="25" />
+                            <RowConstraints minHeight="25" />
+                        </rowConstraints>
+                        
+                        <Label styleClass="form-label" text="Fecha Creación:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="lblOtFecCreacion" styleClass="form-label" style="-fx-font-weight: normal;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        
+                        <Label styleClass="form-label" text="Fecha Entrega Prometida:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="lblOtFecPrometida" styleClass="form-label" style="-fx-font-weight: normal;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    </GridPane>
+                    
+                    <Separator />
+                    
+                    <!-- Sección Clinica / Graduación -->
+                    <VBox spacing="10" style="-fx-padding: 5px;">
+                        <Label styleClass="form-label" text="GRADUACIÓN Y PARÁMETROS CLÍNICOS" />
+                        <GridPane hgap="15" vgap="10" style="-fx-padding: 10px; -fx-background-color: -color-warm-beige-light; -fx-background-radius: 8px;">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50" />
+                                <ColumnConstraints percentWidth="50" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints />
+                                <RowConstraints />
+                            </rowConstraints>
+                            <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label styleClass="form-label" text="Ojo Derecho (OD)" style="-fx-font-size: 11px;" />
+                                <Label fx:id="lblOtGradOD" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="-" />
+                            </VBox>
+                            <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label styleClass="form-label" text="Ojo Izquierdo (OI)" style="-fx-font-size: 11px;" />
+                                <Label fx:id="lblOtGradOI" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="-" />
+                            </VBox>
+                            <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" style="-fx-padding: 8px 0 0 0;">
+                                <Label styleClass="form-label" text="Observaciones" style="-fx-font-size: 11px;" />
+                                <Label fx:id="lblOtObservaciones" style="-fx-font-weight: normal; -fx-text-fill: -color-graphite-soft;" text="Ninguna" wrapText="true" />
+                            </VBox>
+                        </GridPane>
+                    </VBox>
+                    
+                    <!-- Especificaciones Físicas de Montura/Luna -->
+                    <VBox spacing="10">
+                        <Label styleClass="form-label" text="ESPECIFICACIONES DE MATERIALES" />
+                        <GridPane hgap="15" vgap="10">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50" />
+                                <ColumnConstraints percentWidth="50" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints />
+                                <RowConstraints />
+                            </rowConstraints>
+                            
+                            <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label styleClass="form-label" text="Montura Propia del Cliente" />
+                                <Label fx:id="lblOtUsaMontura" style="-fx-font-weight: bold;" text="NO" />
+                            </VBox>
+                            <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label styleClass="form-label" text="Luna Propia del Cliente" />
+                                <Label fx:id="lblOtUsaLuna" style="-fx-font-weight: bold;" text="NO" />
+                            </VBox>
+                            
+                            <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <Label styleClass="form-label" text="Detalles Montura" />
+                                <Label fx:id="lblOtDetallesMontura" text="-" wrapText="true" />
+                            </VBox>
+                            <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                <Label styleClass="form-label" text="Detalles Luna" />
+                                <Label fx:id="lblOtDetallesLuna" text="-" wrapText="true" />
+                            </VBox>
+                        </GridPane>
+                    </VBox>
+                    
+                    <Separator />
+                    
+                    <!-- Control de Flujo de Estados -->
+                    <VBox spacing="10">
+                        <Label styleClass="form-label" text="ACCIONES DE SEGUIMIENTO (AVANZAR ESTADO)" />
+                        <HBox spacing="10" fx:id="boxAcciones" />
+                    </VBox>
+                </VBox>
+                
+                <!-- Panel de Selección Placeholder -->
+                <VBox fx:id="panePlaceholder" alignment="CENTER" spacing="15" styleClass="card">
+                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -color-graphite-light;" text="SELECCIONE UNA ORDEN DE TRABAJO" />
+                    <Label style="-fx-text-fill: -color-graphite-soft; -fx-text-alignment: center;" text="Seleccione una orden de trabajo en la lista izquierda para visualizar su receta,&#10;las especificaciones de montura y registrar avances de estado de fabricación." />
+                </VBox>
+            </StackPane>
+        </HBox>
+    </AnchorPane>
+</ScrollPane>
