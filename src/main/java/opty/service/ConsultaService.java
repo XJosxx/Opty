@@ -36,4 +36,6 @@ public interface ConsultaService {
     HistorialClinico findHistorialByConsultaId(Integer consultaId);
 
     void saveHistorialClinico(HistorialClinico historial);
+
+    HistorialClinico findHistorialById(Integer id);
 }

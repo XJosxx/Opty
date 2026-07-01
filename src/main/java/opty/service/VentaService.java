@@ -2,6 +2,7 @@ package opty.service;
 
 import opty.model.entity.VentaCabecera;
 import opty.model.entity.VentaDetalle;
+import opty.model.enums.TipoComprobante;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ public interface VentaService {
     long count();
 
     VentaCabecera processSale(Integer pacienteId, Integer usuarioId, Integer tiendaId,
-                              Integer productoId, Integer cantidad, String metodoPago);
+                              TipoComprobante tipoComprobante, Integer productoId, Integer cantidad, String metodoPago);
 
     Optional<VentaCabecera> findByNumeroTicket(String numeroTicket);
 
@@ -40,4 +41,7 @@ public interface VentaService {
     List<VentaDetalle> findDetallesByVentaId(Integer ventaId);
 
     BigDecimal sumVentasByDateRange(LocalDateTime desde, LocalDateTime hasta);
+
+    VentaCabecera registrarVentaMultiproducto(Integer pacienteId, Integer usuarioId, Integer tiendaId,
+                                              TipoComprobante tipoComprobante, List<VentaDetalle> detalles, String metodoPago);
 }

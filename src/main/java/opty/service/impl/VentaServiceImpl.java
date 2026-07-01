@@ -2,8 +2,9 @@ package opty.service.impl;
 
 import opty.model.entity.VentaCabecera;
 import opty.model.entity.VentaDetalle;
+import opty.model.enums.TipoComprobante;
 import opty.repository.VentaRepository;
-import opty.repository.VentaRepositoryImpl;
+import opty.repository.implementacion.VentaRepositoryImpl;
 import opty.service.VentaService;
 
 import java.math.BigDecimal;
@@ -60,8 +61,8 @@ public class VentaServiceImpl implements VentaService {
 
     @Override
     public VentaCabecera processSale(Integer pacienteId, Integer usuarioId, Integer tiendaId,
-                                      Integer productoId, Integer cantidad, String metodoPago) {
-        return ventaRepository.processSale(pacienteId, usuarioId, tiendaId, productoId, cantidad, metodoPago);
+                                      TipoComprobante tipoComprobante, Integer productoId, Integer cantidad, String metodoPago) {
+        return ventaRepository.processSale(pacienteId, usuarioId, tiendaId, tipoComprobante, productoId, cantidad, metodoPago);
     }
 
     @Override
@@ -98,4 +99,11 @@ public class VentaServiceImpl implements VentaService {
     public BigDecimal sumVentasByDateRange(LocalDateTime desde, LocalDateTime hasta) {
         return ventaRepository.sumVentasByDateRange(desde, hasta);
     }
+
+    @Override
+    public VentaCabecera registrarVentaMultiproducto(Integer pacienteId, Integer usuarioId, Integer tiendaId,
+                                                      TipoComprobante tipoComprobante, List<VentaDetalle> detalles, String metodoPago) {
+        return ventaRepository.registrarVentaMultiproducto(pacienteId, usuarioId, tiendaId, tipoComprobante, detalles, metodoPago);
+    }
 }
+

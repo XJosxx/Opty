@@ -3,7 +3,7 @@ package opty.service.impl;
 import opty.model.entity.Producto;
 import opty.model.enums.CategoriaProducto;
 import opty.repository.ProductoRepository;
-import opty.repository.ProductoRepositoryImpl;
+import opty.repository.implementacion.ProductoRepositoryImpl;
 import opty.service.ProductoService;
 
 import java.util.List;
@@ -81,3 +81,4 @@ public class ProductoServiceImpl implements ProductoService {
         return productoRepository.findActivos();
     }
 }
+

@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.MovimientoCaja;
 import opty.model.enums.MetodoPago;
@@ -204,3 +206,4 @@ public class MovimientoCajaRepositoryImpl extends BaseJdbcRepository implements 
         return m;
     }
 }
+

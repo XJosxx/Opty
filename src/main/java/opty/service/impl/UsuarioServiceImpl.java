@@ -3,8 +3,9 @@ package opty.service.impl;
 import opty.model.entity.Usuario;
 import opty.model.enums.Rol;
 import opty.repository.UsuarioRepository;
-import opty.repository.UsuarioRepositoryImpl;
+import opty.repository.implementacion.UsuarioRepositoryImpl;
 import opty.service.UsuarioService;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,11 +34,17 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public Usuario save(Usuario usuario) {
+        if (usuario.getPassword() != null && !usuario.getPassword().startsWith("$2a$") && !usuario.getPassword().startsWith("$2b$")) {
+            usuario.setPassword(BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt()));
+        }
         return usuarioRepository.save(usuario);
     }
 
     @Override
     public void update(Usuario usuario) {
+        if (usuario.getPassword() != null && !usuario.getPassword().startsWith("$2a$") && !usuario.getPassword().startsWith("$2b$")) {
+            usuario.setPassword(BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt()));
+        }
         usuarioRepository.update(usuario);
     }
 
@@ -86,3 +93,4 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioRepository.actualizarUltimoAcceso(usuarioId);
     }
 }
+

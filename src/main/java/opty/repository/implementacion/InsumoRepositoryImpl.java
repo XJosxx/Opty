@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.Insumo;
 import opty.model.enums.CategoriaInsumo;
@@ -122,7 +124,7 @@ public class InsumoRepositoryImpl extends BaseJdbcRepository implements InsumoRe
                 if (rs.next()) return Optional.of(map(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar insumo por código y tienda", e);
+            throw new RuntimeException("Error al buscar insumo por cÃ³digo y tienda", e);
         }
         return Optional.empty();
     }
@@ -136,7 +138,7 @@ public class InsumoRepositoryImpl extends BaseJdbcRepository implements InsumoRe
                 while (rs.next()) list.add(map(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar insumos por categoría", e);
+            throw new RuntimeException("Error al buscar insumos por categorÃ­a", e);
         }
         return list;
     }
@@ -198,3 +200,4 @@ public class InsumoRepositoryImpl extends BaseJdbcRepository implements InsumoRe
         return i;
     }
 }
+

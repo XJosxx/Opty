@@ -3,7 +3,7 @@ package opty.service.impl;
 import opty.model.entity.Insumo;
 import opty.model.enums.CategoriaInsumo;
 import opty.repository.InsumoRepository;
-import opty.repository.InsumoRepositoryImpl;
+import opty.repository.implementacion.InsumoRepositoryImpl;
 import opty.service.InsumoService;
 
 import java.util.List;
@@ -81,3 +81,4 @@ public class InsumoServiceImpl implements InsumoService {
         return insumoRepository.findActivos();
     }
 }
+

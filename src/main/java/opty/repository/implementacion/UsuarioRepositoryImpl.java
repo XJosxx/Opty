@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.Usuario;
 import opty.model.enums.Rol;
@@ -191,7 +193,7 @@ public class UsuarioRepositoryImpl extends BaseJdbcRepository implements Usuario
             ps.setInt(2, usuarioId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar último acceso", e);
+            throw new RuntimeException("Error al actualizar Ãºltimo acceso", e);
         }
     }
 
@@ -213,3 +215,4 @@ public class UsuarioRepositoryImpl extends BaseJdbcRepository implements Usuario
         return u;
     }
 }
+

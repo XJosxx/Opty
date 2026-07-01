@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.CompraCabecera;
 import opty.model.entity.CompraDetalle;
@@ -252,4 +254,137 @@ public class CompraRepositoryImpl extends BaseJdbcRepository implements CompraRe
         c.setMontoTotal(rs.getBigDecimal("monto_total"));
         return c;
     }
+
+    @Override
+    public CompraCabecera registrarCompraMultiproducto(Integer proveedorId, Integer usuarioId, Integer tiendaId,
+                                                       List<CompraDetalle> detalles, String metodoPago) {
+        if (detalles == null || detalles.isEmpty()) {
+            throw new IllegalArgumentException("Debe agregar al menos un insumo a la compra");
+        }
+        
+        String nroOrden = "OC-" + System.currentTimeMillis() + "-" + (int)(100 + Math.random() * 900);
+        java.sql.Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
+            
+            // 1. Insert cabecera
+            int compraId = 0;
+            var sqlCab = "INSERT INTO compras_cabecera (proveedor_id, usuario_id, tienda_id, numero_orden, estado_fisico, estado_financiero, monto_total) VALUES (?, ?, ?, ?, 'PENDIENTE', 'POR_PAGAR', 0)";
+            try (var ps = conn.prepareStatement(sqlCab, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+                ps.setInt(1, proveedorId);
+                ps.setInt(2, usuarioId);
+                ps.setInt(3, tiendaId);
+                ps.setString(4, nroOrden);
+                ps.executeUpdate();
+                try (var rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        compraId = rs.getInt(1);
+                    }
+                }
+            }
+            
+            if (compraId == 0) {
+                throw new SQLException("No se pudo generar el ID de la compra.");
+            }
+            
+            // 2. Loop insert detalles y kardex
+            var sqlDet = "INSERT INTO compras_detalle (compra_id, insumo_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, 0)";
+            var sqlKardex = "INSERT INTO kardex (tienda_id, usuario_id, insumo_id, compra_id, tipo_movimiento, motivo, cantidad, cantidad_saldo) VALUES (?, ?, ?, ?, 'ENTRADA', 'Compra a proveedor', ?, 0)";
+            
+            try (var psDet = conn.prepareStatement(sqlDet);
+                 var psKardex = conn.prepareStatement(sqlKardex)) {
+                 
+                for (var item : detalles) {
+                    // Check active state
+                    var sqlActivo = "SELECT activo FROM insumos WHERE id = ? AND tienda_id = ?";
+                    boolean activo = false;
+                    try (var psAct = conn.prepareStatement(sqlActivo)) {
+                        psAct.setInt(1, item.getInsumoId());
+                        psAct.setInt(2, tiendaId);
+                        try (var rsAct = psAct.executeQuery()) {
+                            if (rsAct.next()) {
+                                activo = rsAct.getBoolean("activo");
+                            }
+                        }
+                    }
+                    if (!activo) {
+                        throw new RuntimeException("El insumo ID " + item.getInsumoId() + " no está activo o registrado en esta tienda.");
+                    }
+                    
+                    // Insert detail
+                    psDet.setInt(1, compraId);
+                    psDet.setInt(2, item.getInsumoId());
+                    psDet.setInt(3, item.getCantidad());
+                    psDet.setBigDecimal(4, item.getPrecioUnitario());
+                    psDet.executeUpdate();
+                    
+                    // Insert kardex entry
+                    psKardex.setInt(1, tiendaId);
+                    psKardex.setInt(2, usuarioId);
+                    psKardex.setInt(3, item.getInsumoId());
+                    psKardex.setInt(4, compraId);
+                    psKardex.setInt(5, item.getCantidad());
+                    psKardex.executeUpdate();
+                }
+            }
+            
+            // 3. Get total sum from header (triggers calculated it)
+            BigDecimal totalCompra = BigDecimal.ZERO;
+            var sqlTotal = "SELECT monto_total FROM compras_cabecera WHERE id = ?";
+            try (var psTotal = conn.prepareStatement(sqlTotal)) {
+                psTotal.setInt(1, compraId);
+                try (var rsTotal = psTotal.executeQuery()) {
+                    if (rsTotal.next()) {
+                        totalCompra = rsTotal.getBigDecimal("monto_total");
+                    }
+                }
+            }
+            
+            // 4. Insert caja entry (egreso)
+            var sqlCaja = "INSERT INTO movimientos_caja (tienda_id, usuario_id, compra_id, tipo, metodo_pago, monto, descripcion) VALUES (?, ?, ?, 'SALIDA', ?, ?, 'Compra de insumos')";
+            try (var psCaja = conn.prepareStatement(sqlCaja)) {
+                psCaja.setInt(1, tiendaId);
+                psCaja.setInt(2, usuarioId);
+                psCaja.setInt(3, compraId);
+                psCaja.setString(4, metodoPago != null ? metodoPago : "EFECTIVO");
+                psCaja.setBigDecimal(5, totalCompra);
+                psCaja.executeUpdate();
+            }
+            
+            conn.commit();
+            
+            // Fetch final cabecera entity
+            var sqlSelect = "SELECT id, proveedor_id, usuario_id, tienda_id, numero_orden, fecha_emision, estado_fisico, estado_financiero, monto_total FROM compras_cabecera WHERE id = ?";
+            try (var psSelect = conn.prepareStatement(sqlSelect)) {
+                psSelect.setInt(1, compraId);
+                try (var rsSelect = psSelect.executeQuery()) {
+                    if (rsSelect.next()) {
+                        return map(rsSelect);
+                    }
+                }
+            }
+            throw new SQLException("No se pudo recuperar la compra guardada.");
+            
+        } catch (Exception e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    System.err.println("Error al revertir transacción de compra: " + ex.getMessage());
+                }
+            }
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    System.err.println("Error al cerrar conexión: " + e.getMessage());
+                }
+            }
+        }
+    }
 }
+

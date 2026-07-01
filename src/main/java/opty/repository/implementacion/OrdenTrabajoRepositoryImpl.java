@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.OrdenTrabajo;
 import opty.model.enums.EstadoFisicoOT;
@@ -37,7 +39,7 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
         try (var conn = getConnection(); var ps = conn.prepareStatement(SELECT_COLUMNS + " ORDER BY fecha_creacion DESC"); var rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            throw new RuntimeException("Error al listar órdenes de trabajo", e);
+            throw new RuntimeException("Error al listar Ã³rdenes de trabajo", e);
         }
         return list;
     }
@@ -114,7 +116,7 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
         try (var conn = getConnection(); var ps = conn.prepareStatement("SELECT COUNT(*) FROM ordenes_trabajo"); var rs = ps.executeQuery()) {
             return rs.next() ? rs.getLong(1) : 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al contar órdenes de trabajo", e);
+            throw new RuntimeException("Error al contar Ã³rdenes de trabajo", e);
         }
     }
 
@@ -125,7 +127,7 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
         try (var conn = getConnection(); var ps = conn.prepareStatement(sql); var rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar órdenes pendientes", e);
+            throw new RuntimeException("Error al buscar Ã³rdenes pendientes", e);
         }
         return list;
     }
@@ -139,7 +141,7 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
                 while (rs.next()) list.add(map(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar órdenes por venta", e);
+            throw new RuntimeException("Error al buscar Ã³rdenes por venta", e);
         }
         return list;
     }
@@ -153,7 +155,7 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
                 while (rs.next()) list.add(map(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar órdenes por estado", e);
+            throw new RuntimeException("Error al buscar Ã³rdenes por estado", e);
         }
         return list;
     }
@@ -165,7 +167,7 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
         try (var conn = getConnection(); var ps = conn.prepareStatement(sql); var rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar órdenes vencidas", e);
+            throw new RuntimeException("Error al buscar Ã³rdenes vencidas", e);
         }
         return list;
     }
@@ -200,3 +202,4 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
         return o;
     }
 }
+

@@ -2,7 +2,7 @@ package opty.service.impl;
 
 import opty.model.entity.MovimientoCaja;
 import opty.repository.MovimientoCajaRepository;
-import opty.repository.MovimientoCajaRepositoryImpl;
+import opty.repository.implementacion.MovimientoCajaRepositoryImpl;
 import opty.service.MovimientoCajaService;
 
 import java.math.BigDecimal;
@@ -67,3 +67,4 @@ public class MovimientoCajaServiceImpl implements MovimientoCajaService {
         return movimientoCajaRepository.sumEgresosByDateRange(desde, hasta, tiendaId);
     }
 }
+

@@ -3,7 +3,7 @@ package opty.service.impl;
 import opty.model.entity.Consulta;
 import opty.model.entity.HistorialClinico;
 import opty.repository.ConsultaRepository;
-import opty.repository.ConsultaRepositoryImpl;
+import opty.repository.implementacion.ConsultaRepositoryImpl;
 import opty.service.ConsultaService;
 
 import java.math.BigDecimal;
@@ -89,4 +89,10 @@ public class ConsultaServiceImpl implements ConsultaService {
     public void saveHistorialClinico(HistorialClinico historial) {
         consultaRepository.saveHistorialClinico(historial);
     }
+
+    @Override
+    public HistorialClinico findHistorialById(Integer id) {
+        return consultaRepository.findHistorialById(id);
+    }
 }
+

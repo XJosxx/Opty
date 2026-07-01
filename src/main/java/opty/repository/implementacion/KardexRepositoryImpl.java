@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.Kardex;
 import opty.model.enums.TipoMovimientoKardex;
@@ -194,3 +196,4 @@ public class KardexRepositoryImpl extends BaseJdbcRepository implements KardexRe
         return k;
     }
 }
+

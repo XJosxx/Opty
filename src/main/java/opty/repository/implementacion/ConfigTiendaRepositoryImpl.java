@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.ConfigTienda;
 
@@ -113,7 +115,7 @@ public class ConfigTiendaRepositoryImpl extends BaseJdbcRepository implements Co
                 if (rs.next()) return Optional.of(map(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar tienda por código", e);
+            throw new RuntimeException("Error al buscar tienda por cÃ³digo", e);
         }
         return Optional.empty();
     }
@@ -144,3 +146,4 @@ public class ConfigTiendaRepositoryImpl extends BaseJdbcRepository implements Co
         );
     }
 }
+

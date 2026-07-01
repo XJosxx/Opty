@@ -3,7 +3,7 @@ package opty.service.impl;
 import opty.model.entity.OrdenTrabajo;
 import opty.model.enums.EstadoFisicoOT;
 import opty.repository.OrdenTrabajoRepository;
-import opty.repository.OrdenTrabajoRepositoryImpl;
+import opty.repository.implementacion.OrdenTrabajoRepositoryImpl;
 import opty.service.OrdenTrabajoService;
 
 import java.util.List;
@@ -81,3 +81,4 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
         ordenTrabajoRepository.actualizarEstado(ordenId, nuevoEstado);
     }
 }
+

@@ -2,7 +2,7 @@ package opty.service.impl;
 
 import opty.model.entity.ConfigTienda;
 import opty.repository.ConfigTiendaRepository;
-import opty.repository.ConfigTiendaRepositoryImpl;
+import opty.repository.implementacion.ConfigTiendaRepositoryImpl;
 import opty.service.ConfigTiendaService;
 
 import java.util.List;
@@ -65,3 +65,4 @@ public class ConfigTiendaServiceImpl implements ConfigTiendaService {
         return configTiendaRepository.findByRuc(ruc);
     }
 }
+

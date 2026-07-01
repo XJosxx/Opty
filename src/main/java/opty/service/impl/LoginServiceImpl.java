@@ -3,8 +3,9 @@ package opty.service.impl;
 import opty.model.entity.Usuario;
 import opty.model.enums.Rol;
 import opty.repository.UsuarioRepository;
-import opty.repository.UsuarioRepositoryImpl;
+import opty.repository.implementacion.UsuarioRepositoryImpl;
 import opty.service.LoginService;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Optional;
 
@@ -31,7 +32,20 @@ public class LoginServiceImpl implements LoginService {
         var usuario = optUsuario.get();
         if (Boolean.FALSE.equals(usuario.getActivo())) return Optional.empty();
 
-        if (!usuario.getPassword().equals(password)) return Optional.empty();
+        var dbPassword = usuario.getPassword();
+        boolean matches = false;
+
+        if (dbPassword != null && (dbPassword.startsWith("$2a$") || dbPassword.startsWith("$2b$"))) {
+            try {
+                matches = BCrypt.checkpw(password, dbPassword);
+            } catch (Exception e) {
+                // fall through to plain text comparison in case of format error
+            }
+        } else {
+            matches = password.equals(dbPassword);
+        }
+
+        if (!matches) return Optional.empty();
 
         return optUsuario;
     }
@@ -52,3 +66,4 @@ public class LoginServiceImpl implements LoginService {
         usuarioRepository.actualizarUltimoAcceso(usuarioId);
     }
 }
+

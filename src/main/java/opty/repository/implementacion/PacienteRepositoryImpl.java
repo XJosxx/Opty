@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.Paciente;
 import opty.model.enums.TipoDestacado;
@@ -204,3 +206,4 @@ public class PacienteRepositoryImpl extends BaseJdbcRepository implements Pacien
         return p;
     }
 }
+

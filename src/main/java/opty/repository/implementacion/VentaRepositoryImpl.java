@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.VentaCabecera;
 import opty.model.entity.VentaDetalle;
@@ -192,13 +194,13 @@ public class VentaRepositoryImpl extends BaseJdbcRepository implements VentaRepo
 
     @Override
     public VentaCabecera processSale(Integer pacienteId, Integer usuarioId, Integer tiendaId,
-                                      Integer productoId, Integer cantidad, String metodoPago) {
+                                      TipoComprobante tipoComprobante, Integer productoId, Integer cantidad, String metodoPago) {
         var sql = "{CALL sp_procesar_venta(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (var conn = getConnection(); var cs = conn.prepareCall(sql)) {
             cs.setInt(1, pacienteId);
             cs.setInt(2, usuarioId);
             cs.setInt(3, tiendaId);
-            cs.setString(4, "BOLETA");
+            cs.setString(4, tipoComprobante != null ? tipoComprobante.name() : "BOLETA");
             cs.setInt(5, productoId);
             cs.setInt(6, cantidad);
             cs.setString(7, metodoPago);
@@ -271,4 +273,146 @@ public class VentaRepositoryImpl extends BaseJdbcRepository implements VentaRepo
         v.setMontoTotal(rs.getBigDecimal("monto_total"));
         return v;
     }
+
+    @Override
+    public VentaCabecera registrarVentaMultiproducto(Integer pacienteId, Integer usuarioId, Integer tiendaId,
+                                                      TipoComprobante tipoComprobante, List<VentaDetalle> detalles, String metodoPago) {
+        if (detalles == null || detalles.isEmpty()) {
+            throw new IllegalArgumentException("Debe agregar al menos un producto a la venta");
+        }
+        
+        String ticket = "TK-" + System.currentTimeMillis() + "-" + (int)(100 + Math.random() * 900);
+        java.sql.Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
+            
+            // 1. Insert cabecera
+            int ventaId = 0;
+            var sqlCab = "INSERT INTO ventas_cabecera (paciente_id, usuario_id, tienda_id, numero_ticket, tipo_comprobante, estado_financiero, monto_subtotal, monto_igv, monto_total) VALUES (?, ?, ?, ?, ?, 'PAGADO', 0, 0, 0)";
+            try (var ps = conn.prepareStatement(sqlCab, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+                ps.setInt(1, pacienteId);
+                ps.setInt(2, usuarioId);
+                ps.setInt(3, tiendaId);
+                ps.setString(4, ticket);
+                ps.setString(5, tipoComprobante != null ? tipoComprobante.name() : "BOLETA");
+                ps.executeUpdate();
+                try (var rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        ventaId = rs.getInt(1);
+                    }
+                }
+            }
+            
+            if (ventaId == 0) {
+                throw new SQLException("No se pudo generar el ID de la venta.");
+            }
+            
+            // 2. Loop insert detalles y kardex
+            var sqlDet = "INSERT INTO ventas_detalle (venta_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, 0)";
+            var sqlKardex = "INSERT INTO kardex (tienda_id, usuario_id, producto_id, venta_id, tipo_movimiento, motivo, cantidad, cantidad_saldo) VALUES (?, ?, ?, ?, 'SALIDA', 'Venta registrada', ?, 0)";
+            
+            try (var psDet = conn.prepareStatement(sqlDet);
+                 var psKardex = conn.prepareStatement(sqlKardex)) {
+                 
+                for (var item : detalles) {
+                    // Check stock y estado del producto
+                    var sqlStock = "SELECT stock_actual, precio_venta, activo FROM productos WHERE id = ? AND tienda_id = ?";
+                    BigDecimal precioVenta = BigDecimal.ZERO;
+                    int stock = 0;
+                    boolean activo = false;
+                    try (var psStock = conn.prepareStatement(sqlStock)) {
+                        psStock.setInt(1, item.getProductoId());
+                        psStock.setInt(2, tiendaId);
+                        try (var rsStock = psStock.executeQuery()) {
+                            if (rsStock.next()) {
+                                stock = rsStock.getInt("stock_actual");
+                                precioVenta = rsStock.getBigDecimal("precio_venta");
+                                activo = rsStock.getBoolean("activo");
+                            }
+                        }
+                    }
+                    
+                    if (!activo) {
+                        throw new RuntimeException("El producto ID " + item.getProductoId() + " no está activo o disponible.");
+                    }
+                    if (stock < item.getCantidad()) {
+                        throw new RuntimeException("Stock insuficiente para el producto ID " + item.getProductoId() + ". Disponible: " + stock);
+                    }
+                    
+                    // Insert detail
+                    psDet.setInt(1, ventaId);
+                    psDet.setInt(2, item.getProductoId());
+                    psDet.setInt(3, item.getCantidad());
+                    psDet.setBigDecimal(4, precioVenta);
+                    psDet.executeUpdate();
+                    
+                    // Insert kardex entry
+                    psKardex.setInt(1, tiendaId);
+                    psKardex.setInt(2, usuarioId);
+                    psKardex.setInt(3, item.getProductoId());
+                    psKardex.setInt(4, ventaId);
+                    psKardex.setInt(5, item.getCantidad());
+                    psKardex.executeUpdate();
+                }
+            }
+            
+            // 3. Get total sum from header (triggers calculated it)
+            BigDecimal totalVenta = BigDecimal.ZERO;
+            var sqlTotal = "SELECT monto_total FROM ventas_cabecera WHERE id = ?";
+            try (var psTotal = conn.prepareStatement(sqlTotal)) {
+                psTotal.setInt(1, ventaId);
+                try (var rsTotal = psTotal.executeQuery()) {
+                    if (rsTotal.next()) {
+                        totalVenta = rsTotal.getBigDecimal("monto_total");
+                    }
+                }
+            }
+            
+            // 4. Insert caja entry
+            var sqlCaja = "INSERT INTO movimientos_caja (tienda_id, usuario_id, venta_id, tipo, metodo_pago, monto, descripcion) VALUES (?, ?, ?, 'ENTRADA', ?, ?, 'Venta de productos')";
+            try (var psCaja = conn.prepareStatement(sqlCaja)) {
+                psCaja.setInt(1, tiendaId);
+                psCaja.setInt(2, usuarioId);
+                psCaja.setInt(3, ventaId);
+                psCaja.setString(4, metodoPago != null ? metodoPago : "EFECTIVO");
+                psCaja.setBigDecimal(5, totalVenta);
+                psCaja.executeUpdate();
+            }
+            
+            conn.commit();
+            
+            // Fetch final cabecera entity
+            var sqlSelect = SELECT_COLUMNS + " WHERE id = ?";
+            try (var psSelect = conn.prepareStatement(sqlSelect)) {
+                psSelect.setInt(1, ventaId);
+                try (var rsSelect = psSelect.executeQuery()) {
+                    if (rsSelect.next()) {
+                        return map(rsSelect);
+                    }
+                }
+            }
+            throw new SQLException("No se pudo recuperar la venta guardada.");
+            
+        } catch (Exception e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    System.err.println("Error al revertir transacción de venta: " + ex.getMessage());
+                }
+            }
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    System.err.println("Error al cerrar conexión: " + e.getMessage());
+                }
+            }
+        }
+    }
 }
+

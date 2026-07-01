@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.Proveedor;
 
@@ -161,3 +163,4 @@ public class ProveedorRepositoryImpl extends BaseJdbcRepository implements Prove
         return p;
     }
 }
+

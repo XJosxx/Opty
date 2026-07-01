@@ -2,7 +2,7 @@ package opty.service.impl;
 
 import opty.model.entity.Paciente;
 import opty.repository.PacienteRepository;
-import opty.repository.PacienteRepositoryImpl;
+import opty.repository.implementacion.PacienteRepositoryImpl;
 import opty.service.PacienteService;
 
 import java.util.List;
@@ -80,3 +80,4 @@ public class PacienteServiceImpl implements PacienteService {
         return pacienteRepository.countByTiendaId(tiendaId);
     }
 }
+

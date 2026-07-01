@@ -22,4 +22,6 @@ public interface ConsultaRepository extends CrudRepository<Consulta, Integer> {
     HistorialClinico findHistorialByConsultaId(Integer consultaId);
 
     void saveHistorialClinico(HistorialClinico historial);
+
+    HistorialClinico findHistorialById(Integer id);
 }

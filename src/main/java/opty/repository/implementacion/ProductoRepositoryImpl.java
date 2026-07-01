@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.Producto;
 import opty.model.enums.CategoriaProducto;
@@ -123,7 +125,7 @@ public class ProductoRepositoryImpl extends BaseJdbcRepository implements Produc
                 if (rs.next()) return Optional.of(map(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar producto por código y tienda", e);
+            throw new RuntimeException("Error al buscar producto por cÃ³digo y tienda", e);
         }
         return Optional.empty();
     }
@@ -137,7 +139,7 @@ public class ProductoRepositoryImpl extends BaseJdbcRepository implements Produc
                 while (rs.next()) list.add(map(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar productos por categoría", e);
+            throw new RuntimeException("Error al buscar productos por categorÃ­a", e);
         }
         return list;
     }
@@ -199,3 +201,4 @@ public class ProductoRepositoryImpl extends BaseJdbcRepository implements Produc
         return p;
     }
 }
+

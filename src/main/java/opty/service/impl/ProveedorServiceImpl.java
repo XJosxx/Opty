@@ -2,7 +2,7 @@ package opty.service.impl;
 
 import opty.model.entity.Proveedor;
 import opty.repository.ProveedorRepository;
-import opty.repository.ProveedorRepositoryImpl;
+import opty.repository.implementacion.ProveedorRepositoryImpl;
 import opty.service.ProveedorService;
 
 import java.util.List;
@@ -70,3 +70,4 @@ public class ProveedorServiceImpl implements ProveedorService {
         return proveedorRepository.findByTiendaId(tiendaId);
     }
 }
+

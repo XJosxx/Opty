@@ -1,4 +1,6 @@
-package opty.repository;
+package opty.repository.implementacion;
+
+import opty.repository.*;
 
 import opty.model.entity.Consulta;
 import opty.model.entity.HistorialClinico;
@@ -155,39 +157,75 @@ public class ConsultaRepositoryImpl extends BaseJdbcRepository implements Consul
     public Consulta registrarConsultaConVenta(Integer pacienteId, Integer usuarioId, Integer tiendaId,
                                                 String motivo, Integer productoId, BigDecimal precioServicio,
                                                 String tipoComprobante) {
-        var sql = "{CALL sp_registrar_paciente_y_consulta(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-        try (var conn = getConnection(); var cs = conn.prepareCall(sql)) {
-            cs.setString(1, "DNI");
-            cs.setString(2, "TEMP-" + System.currentTimeMillis());
-            cs.setString(3, "Paciente");
-            cs.setString(4, "Temp");
-            cs.setString(5, "Temp");
-            cs.setNull(6, Types.VARCHAR);
-            cs.setNull(7, Types.DATE);
-            cs.setInt(8, usuarioId);
-            cs.setInt(9, tiendaId);
-            cs.setString(10, motivo);
-            cs.setInt(11, productoId);
-            cs.setBigDecimal(12, precioServicio);
-            cs.setString(13, tipoComprobante);
-            cs.registerOutParameter(14, Types.INTEGER);
-            cs.registerOutParameter(15, Types.VARCHAR);
-            cs.execute();
+        String tipoDoc = "DNI";
+        String numDoc = "TEMP-" + System.currentTimeMillis();
+        String nombre = "Paciente";
+        String apellidoP = "Temp";
+        String apellidoM = "Temp";
+        String telefono = null;
+        java.sql.Date fechaNac = null;
 
-            var resultado = cs.getInt(14);
-            var mensaje = cs.getString(15);
-            if (resultado == 0) throw new RuntimeException("Error al registrar consulta: " + mensaje);
-
-            var ticketExtraido = mensaje.replace("Consulta registrada. Ticket: ", "").trim();
-            var ventaRepo = new VentaRepositoryImpl();
-            var venta = ventaRepo.findByNumeroTicket(ticketExtraido)
-                    .orElseThrow(() -> new RuntimeException("Consulta registrada pero ticket no encontrado"));
-
-            var detalles = ventaRepo.findDetallesByVentaId(venta.getId());
-            if (!detalles.isEmpty()) {
-                return findByVentaDetalleId(detalles.getFirst().getId());
+        var callSql = "{CALL sp_registrar_paciente_y_consulta(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        try (var conn = getConnection()) {
+            if (pacienteId != null) {
+                var patientSql = "SELECT nombre, apellido_p, apellido_m, tipo_documento, num_documento, telefono, fecha_nacimiento FROM pacientes WHERE id = ?";
+                try (var ps = conn.prepareStatement(patientSql)) {
+                    ps.setInt(1, pacienteId);
+                    try (var rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            nombre = rs.getString("nombre");
+                            apellidoP = rs.getString("apellido_p");
+                            apellidoM = rs.getString("apellido_m");
+                            tipoDoc = rs.getString("tipo_documento");
+                            numDoc = rs.getString("num_documento");
+                            telefono = rs.getString("telefono");
+                            fechaNac = rs.getDate("fecha_nacimiento");
+                        }
+                    }
+                }
             }
-            throw new RuntimeException("No se encontró el detalle de venta asociado a la consulta");
+
+            try (var cs = conn.prepareCall(callSql)) {
+                cs.setString(1, tipoDoc);
+                cs.setString(2, numDoc);
+                cs.setString(3, nombre);
+                cs.setString(4, apellidoP);
+                cs.setString(5, apellidoM);
+                if (telefono != null) {
+                    cs.setString(6, telefono);
+                } else {
+                    cs.setNull(6, Types.VARCHAR);
+                }
+                if (fechaNac != null) {
+                    cs.setDate(7, fechaNac);
+                } else {
+                    cs.setNull(7, Types.DATE);
+                }
+                cs.setInt(8, usuarioId);
+                cs.setInt(9, tiendaId);
+                cs.setString(10, motivo);
+                cs.setInt(11, productoId);
+                cs.setBigDecimal(12, precioServicio);
+                cs.setString(13, tipoComprobante);
+                cs.registerOutParameter(14, Types.INTEGER);
+                cs.registerOutParameter(15, Types.VARCHAR);
+                cs.execute();
+
+                var resultado = cs.getInt(14);
+                var mensaje = cs.getString(15);
+                if (resultado == 0) throw new RuntimeException("Error al registrar consulta: " + mensaje);
+
+                var ticketExtraido = mensaje.replace("Consulta registrada. Ticket: ", "").trim();
+                var ventaRepo = new VentaRepositoryImpl();
+                var venta = ventaRepo.findByNumeroTicket(ticketExtraido)
+                        .orElseThrow(() -> new RuntimeException("Consulta registrada pero ticket no encontrado"));
+
+                var detalles = ventaRepo.findDetallesByVentaId(venta.getId());
+                if (!detalles.isEmpty()) {
+                    return findByVentaDetalleId(detalles.get(0).getId());
+                }
+                throw new RuntimeException("No se encontró el detalle de venta asociado a la consulta");
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Error al ejecutar sp_registrar_paciente_y_consulta", e);
         }
@@ -223,7 +261,7 @@ public class ConsultaRepositoryImpl extends BaseJdbcRepository implements Consul
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar historial clínico", e);
+            throw new RuntimeException("Error al buscar historial clÃ­nico", e);
         }
         return null;
     }
@@ -239,7 +277,7 @@ public class ConsultaRepositoryImpl extends BaseJdbcRepository implements Consul
                 ps.setInt(4, historial.getId());
                 ps.executeUpdate();
             } catch (SQLException e) {
-                throw new RuntimeException("Error al actualizar historial clínico", e);
+                throw new RuntimeException("Error al actualizar historial clÃ­nico", e);
             }
         } else {
             var sql = "INSERT INTO historial_clinico (consulta_id, graduacion_od, graduacion_oi, observaciones) VALUES (?, ?, ?, ?)";
@@ -253,9 +291,31 @@ public class ConsultaRepositoryImpl extends BaseJdbcRepository implements Consul
                     if (keys.next()) historial.setId(keys.getInt(1));
                 }
             } catch (SQLException e) {
-                throw new RuntimeException("Error al guardar historial clínico", e);
+                throw new RuntimeException("Error al guardar historial clÃ­nico", e);
             }
         }
+    }
+
+    @Override
+    public HistorialClinico findHistorialById(Integer id) {
+        var sql = "SELECT id, consulta_id, graduacion_od, graduacion_oi, observaciones FROM historial_clinico WHERE id = ?";
+        try (var conn = getConnection(); var ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    var hc = new HistorialClinico();
+                    hc.setId(rs.getInt("id"));
+                    hc.setConsultaId(rs.getInt("consulta_id"));
+                    hc.setGraduacionOd(rs.getString("graduacion_od"));
+                    hc.setGraduacionOi(rs.getString("graduacion_oi"));
+                    hc.setObservaciones(rs.getString("observaciones"));
+                    return hc;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al buscar historial clínico por ID", e);
+        }
+        return null;
     }
 
     private Consulta map(ResultSet rs) throws SQLException {
@@ -272,3 +332,4 @@ public class ConsultaRepositoryImpl extends BaseJdbcRepository implements Consul
         return c;
     }
 }
+

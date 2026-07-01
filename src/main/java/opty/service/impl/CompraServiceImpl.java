@@ -3,7 +3,7 @@ package opty.service.impl;
 import opty.model.entity.CompraCabecera;
 import opty.model.entity.CompraDetalle;
 import opty.repository.CompraRepository;
-import opty.repository.CompraRepositoryImpl;
+import opty.repository.implementacion.CompraRepositoryImpl;
 import opty.service.CompraService;
 
 import java.math.BigDecimal;
@@ -95,4 +95,11 @@ public class CompraServiceImpl implements CompraService {
     public BigDecimal sumComprasByDateRange(LocalDateTime desde, LocalDateTime hasta) {
         return compraRepository.sumComprasByDateRange(desde, hasta);
     }
+
+    @Override
+    public CompraCabecera registrarCompraMultiproducto(Integer proveedorId, Integer usuarioId, Integer tiendaId,
+                                                       List<CompraDetalle> detalles, String metodoPago) {
+        return compraRepository.registrarCompraMultiproducto(proveedorId, usuarioId, tiendaId, detalles, metodoPago);
+    }
 }
+

@@ -2,7 +2,7 @@ package opty.service.impl;
 
 import opty.model.entity.Kardex;
 import opty.repository.KardexRepository;
-import opty.repository.KardexRepositoryImpl;
+import opty.repository.implementacion.KardexRepositoryImpl;
 import opty.service.KardexService;
 
 import java.time.LocalDateTime;
@@ -61,3 +61,4 @@ public class KardexServiceImpl implements KardexService {
         return kardexRepository.findByTipoMovimiento(tipoMovimiento);
     }
 }
+
