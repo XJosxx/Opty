@@ -31,47 +31,80 @@ model → repository → service → view
 | 2 | Repositorios JDBC con SPs | ✅ |
 | 3 | Servicios con lógica de negocio | ✅ |
 | 4 | Login + MainView + Dashboard (FXML+CSS+Controladores) | ✅ |
-| 5 | Módulo Pacientes + Consultas | ⏳ |
-| 6 | Módulo Ventas | ⏳ |
-| 7 | Módulo Compras | ⏳ |
-| 8 | Módulo Inventario (productos, insumos, kardex) | ⏳ |
-| 9 | Módulo Usuarios (solo ADMIN) | ⏳ |
-| 10 | Módulo Órdenes de Trabajo + alertas vencidas | ⏳ |
+| 5 | Módulo Pacientes + Consultas (Clínica y Refracción) | ✅ |
+| 6 | Módulo Ventas (Multi-producto transaccional en Java) | ✅ |
+| 7 | Módulo Compras (Abastecimiento de insumos) | ✅ |
+| 8 | Módulo Inventario (Productos, insumos y Kardex de almacén) | ✅ |
+| 9 | Módulo Usuarios (Roles: ADMIN, VENDEDOR, MEDICO) | ✅ |
+| 10 | Módulo Órdenes de Trabajo (Taller y Lab oftálmico) | ✅ |
 
 ## Requisitos
 
-- Java Development Kit 25
-- Apache Maven 3.9+
-- MySQL 8.0+ con base `optica_db` poblada
-- Conexión de red al servidor MySQL
+- **Java Development Kit (JDK) 17** (Versión de compilación ajustada en pom.xml)
+- **Apache Maven 3.9+**
+- **MySQL 8.0+** con la base de datos `optica_db` creada y poblada.
+- **Lombok** habilitado en el IDE de desarrollo.
 
-## Configurar conexión
+## Preparación previa y Configuración
 
-La base de datos ya está en un servidor compartido. Solo necesitas crear `config/config.properties` a partir de la plantilla:
-
+### 1. Configurar conexión de base de datos
+Debes configurar las credenciales de tu base de datos local en el archivo de propiedades. Crea una copia de `config/config.properties.example` y nómbrala `config/config.properties`:
 ```bash
+# Windows
+copy config\config.properties.example config\config.properties
+# Linux/macOS
 cp config/config.properties.example config/config.properties
-# Windows: copiar config\config.properties.example config\config.properties
+```
+Abre el archivo `config/config.properties` y edita los valores correspondientes a tu servidor MySQL:
+```properties
+db.host=127.0.0.1
+db.port=3306
+db.name=optica_db
+db.user=tu_usuario
+db.password=tu_contrasena
+db.useSSL=false
 ```
 
-### Usuarios de prueba
+### 2. Habilitar Procesamiento de Anotaciones (Lombok)
+Al utilizar Lombok para la autogeneración de getters, setters y constructores, debes asegurarte de que tu IDE los procese correctamente para evitar falsos errores de compilación en el código fuente:
+*   **En IntelliJ IDEA**:
+    1. Ve a `File` -> `Settings` (o `Ctrl + Alt + S`).
+    2. Navega a `Build, Execution, Deployment` -> `Compiler` -> `Annotation Processors`.
+    3. Marca la casilla **"Enable annotation processing"** y haz clic en Apply/OK.
+    4. Asegúrate de tener instalado el plugin oficial de Lombok (incluido por defecto en versiones recientes de IntelliJ).
 
-| Usuario | Contraseña | Rol |
-|---------|-----------|-----|
-| admin | admin123 | ADMIN |
-| vendedor1 | vende123 | VENDEDOR |
-| optometra1 | opto123 | OPTOMETRA |
+### 3. Actualizar Procedimientos Almacenados (Evitar colisión de tickets)
+Se incluye un actualizador automático para recrear los procedimientos `sp_procesar_venta` y `sp_registrar_compra` en la base de datos MySQL activa con un formato de numeración aleatoria para evitar colisiones del timestamp:
+```bash
+mvn compile exec:java "-Dexec.mainClass=opty.config.DatabaseUpdater"
+```
 
 ## Compilar y ejecutar
 
+Puedes compilar e inicializar la aplicación de escritorio JavaFX de la siguiente manera:
+
 ```bash
+# Limpiar clases anteriores y compilar el proyecto
 mvn clean compile
+
+# Iniciar la interfaz gráfica JavaFX
 mvn javafx:run
 ```
 
-## Stack tecnológico
+### Usuarios y Roles de Prueba para Login
+La aplicación cuenta con control de accesos y menús laterales dinámicos según el tipo de empleado:
 
-- Java 25, JavaFX 23, Maven 3.9.11
-- mysql-connector-j 9.3 (JDBC plano, sin Spring/JPA/Hibernate)
-- ControlsFX 11.2.1
-- MySQL 8.0+ (local o Aiven)
+| Usuario | Contraseña | Rol / Permisos |
+|---------|-----------|----------------|
+| **admin** | admin123 | **ADMIN** (Acceso a todos los módulos y administración de usuarios). |
+| **vendedor1** | vende123 | **VENDEDOR** (Acceso a ventas, compras, pacientes, órdenes e inventario. Bloqueado de usuarios). |
+| **optometra1** | opto123 | **MEDICO** (Restringido únicamente a las consultas oftálmicas y órdenes del laboratorio). |
+
+## Stack tecnológico del Proyecto
+
+- **Java 17** & **JavaFX 21**
+- **Lombok** (Generación de código estructurado)
+- **HikariCP** (Pool de conexiones JDBC de alto rendimiento)
+- **MySQL Connector/J 9.0+** (Consultas nativas y control de transacciones atómicas a nivel de servicio)
+- **ControlsFX** (Componentes visuales para la UI)
+- **Vanilla CSS** (Estilos premium aplicados sobre componentes FXML)
