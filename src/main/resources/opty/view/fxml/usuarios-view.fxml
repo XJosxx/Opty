@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.UsuariosController">
+    <AnchorPane styleClass="dashboard-root">
+        <HBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+            
+            <!-- Columna Izquierda: Listado de Usuarios -->
+            <VBox spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="550.0">
+                <Label styleClass="section-title" text="USUARIOS Y PERSONAL DEL SISTEMA" />
+                <Separator />
+                
+                <TableView fx:id="tableUsuarios" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colUsrId" text="ID" prefWidth="50.0" />
+                        <TableColumn fx:id="colUsrUsername" text="Usuario" prefWidth="120.0" />
+                        <TableColumn fx:id="colUsrNombre" text="Nombre Completo" prefWidth="180.0" />
+                        <TableColumn fx:id="colUsrRol" text="Rol" prefWidth="100.0" />
+                        <TableColumn fx:id="colUsrEstado" text="Estado" prefWidth="90.0" />
+                    </columns>
+                </TableView>
+            </VBox>
+            
+            <!-- Columna Derecha: Formulario de Creación / Edición -->
+            <VBox spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="590.0">
+                <HBox alignment="CENTER_LEFT">
+                    <VBox HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblFormTitle" styleClass="section-title" text="REGISTRAR NUEVO USUARIO" />
+                        <Label styleClass="section-subtitle" text="Administración de credenciales, roles y sucursal de trabajo." />
+                    </VBox>
+                    <Button onAction="#onNuevoUsuario" styleClass="btn-secondary" text="Nuevo" />
+                </HBox>
+                
+                <Separator />
+                
+                <!-- Campos del Formulario -->
+                <GridPane hgap="15" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="35" />
+                        <ColumnConstraints percentWidth="65" />
+                    </columnConstraints>
+                    
+                    <!-- Nombre -->
+                    <Label styleClass="form-label" text="Nombres:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="txtNombre" promptText="Nombres del empleado..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    
+                    <!-- Apellido Paterno -->
+                    <Label styleClass="form-label" text="Apellido Paterno:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="txtApellidoP" promptText="Apellido paterno..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    
+                    <!-- Apellido Materno -->
+                    <Label styleClass="form-label" text="Apellido Materno:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="txtApellidoM" promptText="Apellido materno..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    
+                    <!-- Documento -->
+                    <Label styleClass="form-label" text="Nro. Documento (DNI/RUC):" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="txtDocumento" promptText="Documento de identidad..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    
+                    <!-- Username -->
+                    <Label styleClass="form-label" text="Nombre de Usuario (Log):" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="txtUsername" promptText="Ej: jgomez" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    
+                    <!-- Password -->
+                    <Label styleClass="form-label" text="Contraseña:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <PasswordField fx:id="txtPassword" promptText="Contraseña de acceso..." GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                    
+                    <!-- Rol -->
+                    <Label styleClass="form-label" text="Rol Asignado:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                    <ComboBox fx:id="comboRol" prefWidth="400.0" promptText="Seleccione Rol" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                    
+                    <!-- Tienda / Sucursal -->
+                    <Label styleClass="form-label" text="Sucursal Asignada:" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                    <ComboBox fx:id="comboTienda" prefWidth="400.0" promptText="Seleccione Sucursal" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                    
+                    <!-- Estado Activo -->
+                    <Label styleClass="form-label" text="Estado Activo:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                    <CheckBox fx:id="checkActivo" text="Permitir acceso al sistema" selected="true" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                </GridPane>
+                
+                <Separator style="-fx-padding: 10px 0;" />
+                
+                <HBox spacing="15" alignment="CENTER_RIGHT">
+                    <Button onAction="#onGuardarUsuario" styleClass="btn-primary" text="Guardar Usuario" prefHeight="40.0" prefWidth="180.0" />
+                </HBox>
+            </VBox>
+            
+        </HBox>
+    </AnchorPane>
+</ScrollPane>
