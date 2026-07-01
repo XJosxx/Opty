@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.PacientesController">
+    <AnchorPane styleClass="dashboard-root">
+        <HBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+            <!-- Columna Izquierda: Buscador y Lista de Pacientes -->
+            <VBox spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="480.0">
+                <Label styleClass="section-title" text="PACIENTES" />
+                
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="txtBuscar" HBox.hgrow="ALWAYS" promptText="Buscar por nombre o documento..." />
+                    <Button fx:id="btnBuscar" onAction="#onBuscar" styleClass="btn-secondary" text="Buscar" />
+                    <Button fx:id="btnNuevo" onAction="#onMostrarRegistroPaciente" styleClass="btn-primary" text="+ Nuevo" />
+                </HBox>
+                
+                <TableView fx:id="tablePacientes" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colDocumento" text="Documento" prefWidth="100.0" />
+                        <TableColumn fx:id="colNombre" text="Nombre Completo" prefWidth="200.0" />
+                        <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="100.0" />
+                    </columns>
+                </TableView>
+            </VBox>
+            
+            <!-- Columna Derecha: Detalles, Historial y Acciones -->
+            <StackPane HBox.hgrow="ALWAYS" prefWidth="680.0">
+                <!-- Estado 1: Vista Detalle (por defecto o al seleccionar) -->
+                <VBox fx:id="paneDetalle" spacing="20" styleClass="card" visible="false">
+                    <HBox alignment="CENTER_LEFT">
+                        <VBox HBox.hgrow="ALWAYS">
+                            <Label fx:id="lblPacienteNombre" styleClass="section-title" text="SELECCIONE UN PACIENTE" />
+                            <Label fx:id="lblPacienteDocumento" styleClass="section-subtitle" text="DNI/RUC —" />
+                        </VBox>
+                        <Button fx:id="btnNuevaConsultaTab" onAction="#onIniciarConsultaForm" styleClass="btn-primary" text="Nueva Consulta" />
+                    </HBox>
+                    
+                    <Separator />
+                    
+                    <GridPane hgap="15" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="30" />
+                            <ColumnConstraints percentWidth="70" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="25" />
+                            <RowConstraints minHeight="25" />
+                            <RowConstraints minHeight="25" />
+                        </rowConstraints>
+                        
+                        <Label styleClass="form-label" text="Fecha Nacimiento:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="lblPacienteFecNac" styleClass="form-label" style="-fx-font-weight: normal;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        
+                        <Label styleClass="form-label" text="Teléfono:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="lblPacienteTelf" styleClass="form-label" style="-fx-font-weight: normal;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label styleClass="form-label" text="Tienda Afiliada:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="lblPacienteTienda" styleClass="form-label" style="-fx-font-weight: normal;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    </GridPane>
+                    
+                    <TabPane fx:id="tabPanePaciente" VBox.vgrow="ALWAYS">
+                        <tabs>
+                            <Tab text="Historial de Consultas" closable="false">
+                                <VBox spacing="10" style="-fx-padding: 15px 0 0 0;">
+                                    <TableView fx:id="tableConsultas" VBox.vgrow="ALWAYS" prefHeight="250.0">
+                                        <columns>
+                                            <TableColumn fx:id="colConsFecha" text="Fecha" prefWidth="120.0" />
+                                            <TableColumn fx:id="colConsMotivo" text="Motivo" prefWidth="250.0" />
+                                            <TableColumn fx:id="colConsGraduacion" text="Graduación OD/OI" prefWidth="200.0" />
+                                        </columns>
+                                    </TableView>
+                                </VBox>
+                            </Tab>
+                            <Tab fx:id="tabNuevaConsulta" text="Nueva Consulta" closable="false">
+                                <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+                                    <VBox spacing="15" style="-fx-padding: 15px 5px 0 5px;">
+                                        <Label styleClass="form-label" text="Motivo de la Consulta" />
+                                        <TextField fx:id="txtConsMotivo" promptText="Describa el motivo de la atención..." />
+                                        
+                                        <GridPane hgap="15" vgap="10">
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="50" />
+                                                <ColumnConstraints percentWidth="50" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints />
+                                            </rowConstraints>
+                                            <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                                <Label styleClass="form-label" text="Graduación Ojo Derecho (OD)" />
+                                                <TextField fx:id="txtGraduacionOD" promptText="ej. Esf: -1.50, Cil: -0.75, Eje: 180" />
+                                            </VBox>
+                                            <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                <Label styleClass="form-label" text="Graduación Ojo Izquierdo (OI)" />
+                                                <TextField fx:id="txtGraduacionOI" promptText="ej. Esf: -1.25, Cil: -0.50, Eje: 175" />
+                                            </VBox>
+                                        </GridPane>
+                                        
+                                        <Label styleClass="form-label" text="Observaciones Clínicas" />
+                                        <TextArea fx:id="txtConsObservaciones" prefHeight="80.0" promptText="Notas y recomendaciones adicionales..." />
+                                        
+                                        <GridPane hgap="15" vgap="10">
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="50" />
+                                                <ColumnConstraints percentWidth="50" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints />
+                                            </rowConstraints>
+                                            <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                                <Label styleClass="form-label" text="Costo del Servicio (S/)" />
+                                                <TextField fx:id="txtConsCosto" text="50.00" />
+                                            </VBox>
+                                            <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                <Label styleClass="form-label" text="Tipo de Comprobante" />
+                                                <ComboBox fx:id="comboTipoComprobante" prefWidth="300.0" />
+                                            </VBox>
+                                        </GridPane>
+                                        
+                                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                                            <Button onAction="#onGuardarConsulta" styleClass="btn-primary" text="Guardar Consulta y Venta" />
+                                        </HBox>
+                                    </VBox>
+                                </ScrollPane>
+                            </Tab>
+                        </tabs>
+                    </TabPane>
+                </VBox>
+                
+                <!-- Estado 2: Formulario Nuevo Paciente -->
+                <VBox fx:id="paneNuevoPaciente" spacing="20" styleClass="card" visible="false">
+                    <Label styleClass="section-title" text="NUEVO PACIENTE" />
+                    <Separator />
+                    
+                    <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+                        <VBox spacing="15" style="-fx-padding: 5px;">
+                            <GridPane hgap="15" vgap="10">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="50" />
+                                    <ColumnConstraints percentWidth="50" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                </rowConstraints>
+                                
+                                <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label styleClass="form-label" text="Tipo Documento" />
+                                    <ComboBox fx:id="comboTipoDoc" prefWidth="300.0" />
+                                </VBox>
+                                <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label styleClass="form-label" text="Número Documento" />
+                                    <TextField fx:id="txtPacDoc" promptText="Documento de identidad..." />
+                                </VBox>
+                                
+                                <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
+                                    <Label styleClass="form-label" text="Nombres" />
+                                    <TextField fx:id="txtPacNombre" promptText="Nombres del paciente..." />
+                                </VBox>
+                                
+                                <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                    <Label styleClass="form-label" text="Apellido Paterno" />
+                                    <TextField fx:id="txtPacApeP" promptText="Apellido paterno..." />
+                                </VBox>
+                                <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <Label styleClass="form-label" text="Apellido Materno" />
+                                    <TextField fx:id="txtPacApeM" promptText="Apellido materno..." />
+                                </VBox>
+                                
+                                <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                    <Label styleClass="form-label" text="Teléfono" />
+                                    <TextField fx:id="txtPacTelf" promptText="Número de celular..." />
+                                </VBox>
+                                <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <Label styleClass="form-label" text="Fecha de Nacimiento" />
+                                    <DatePicker fx:id="dpPacFecNac" prefWidth="300.0" />
+                                </VBox>
+                            </GridPane>
+                            
+                            <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 15px 0 0 0;">
+                                <Button onAction="#onCancelarRegistro" styleClass="btn-secondary" text="Cancelar" />
+                                <Button onAction="#onGuardarPaciente" styleClass="btn-primary" text="Guardar Paciente" />
+                            </HBox>
+                        </VBox>
+                    </ScrollPane>
+                </VBox>
+                
+                <!-- Estado 3: Placeholder inicial (No seleccionado) -->
+                <VBox fx:id="panePlaceholder" alignment="CENTER" spacing="15" styleClass="card">
+                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -color-graphite-light;" text="SELECCIONE O REGISTRE UN PACIENTE" />
+                    <Label style="-fx-text-fill: -color-graphite-soft; -fx-text-alignment: center;" text="Busque un paciente en la lista izquierda para ver su historial clínico,&#10;o cree uno nuevo presionando el botón '+ Nuevo'." />
+                </VBox>
+            </StackPane>
+        </HBox>
+    </AnchorPane>
+</ScrollPane>
