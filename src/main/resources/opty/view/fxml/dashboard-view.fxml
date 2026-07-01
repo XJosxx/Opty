@@ -7,6 +7,9 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.chart.AreaChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
 
 <ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.DashboardController">
     <AnchorPane styleClass="dashboard-root">
@@ -38,6 +41,32 @@
                     <Label styleClass="metric-label" text="ÓRDENES PENDIENTES" />
                 </VBox>
             </GridPane>
+
+            <GridPane hgap="20" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="400" percentWidth="65" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="200" percentWidth="35" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="300" vgrow="ALWAYS" />
+                </rowConstraints>
+                <VBox spacing="12" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label styleClass="section-title" text="TENDENCIA DE VENTAS (ÚLTIMOS 7 DÍAS)" />
+                    <AreaChart fx:id="salesChart" legendVisible="false" prefHeight="260.0">
+                        <xAxis>
+                            <CategoryAxis fx:id="xAxis" side="BOTTOM" />
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis fx:id="yAxis" side="LEFT" />
+                        </yAxis>
+                    </AreaChart>
+                </VBox>
+                <VBox spacing="12" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label styleClass="section-title" text="TOP VENDEDORES" />
+                    <VBox fx:id="vendedoresLeaderboard" spacing="10" VBox.vgrow="ALWAYS" />
+                </VBox>
+            </GridPane>
+
             <GridPane hgap="20" vgap="20">
                 <columnConstraints>
                     <ColumnConstraints hgrow="ALWAYS" minWidth="300" percentWidth="50" />

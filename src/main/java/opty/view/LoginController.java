@@ -39,6 +39,7 @@ public class LoginController {
 
         var usuario = opt.get();
         loginService.updateLastAccess(usuario.getId());
+        UserSession.getInstance().setUsuario(usuario);
 
         try {
             var loader = new FXMLLoader(getClass().getResource("/opty/view/fxml/main-view.fxml"));

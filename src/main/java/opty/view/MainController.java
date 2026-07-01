@@ -11,6 +11,8 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import opty.model.entity.Usuario;
 
+import opty.model.enums.Rol;
+
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -43,7 +45,32 @@ public class MainController implements ModuleController {
         this.usuario = usuario;
         userLabel.setText(usuario.nombreCompleto());
         storeLabel.setText("");
-        onDashboard();
+        
+        // Aplicar restricciones de visualización basadas en el Rol del usuario
+        if (usuario.getRol() == Rol.VENDEDOR) {
+            // El Vendedor tiene acceso a Ventas, Pacientes, Inventario, Órdenes, pero NO a la gestión de Usuarios
+            btnUsuarios.setVisible(false);
+            btnUsuarios.setManaged(false);
+            onDashboard();
+        } else if (usuario.getRol() == Rol.MEDICO) {
+            // El Médico (Optometrista) solo debe ver Pacientes y Órdenes de Trabajo para exámenes clínicos y recetas
+            btnDashboard.setVisible(false);
+            btnDashboard.setManaged(false);
+            btnVentas.setVisible(false);
+            btnVentas.setManaged(false);
+            btnCompras.setVisible(false);
+            btnCompras.setManaged(false);
+            btnInventario.setVisible(false);
+            btnInventario.setManaged(false);
+            btnUsuarios.setVisible(false);
+            btnUsuarios.setManaged(false);
+            
+            // Su pantalla de inicio por defecto es Pacientes y Consultas en lugar del Dashboard
+            onPacientes();
+        } else {
+            // El ADMIN tiene acceso completo a todo
+            onDashboard();
+        }
     }
 
     private void setActiveButton(Button btn) {
@@ -80,49 +107,44 @@ public class MainController implements ModuleController {
 
     @FXML
     private void onPacientes() {
-        moduleTitle.setText("Pacientes — Próximamente");
+        loadModule("/opty/view/fxml/pacientes-view.fxml", "Pacientes & Consultas");
         setActiveButton(btnPacientes);
-        contentArea.getChildren().clear();
     }
 
     @FXML
     private void onVentas() {
-        moduleTitle.setText("Ventas — Próximamente");
+        loadModule("/opty/view/fxml/ventas-view.fxml", "Módulo de Ventas");
         setActiveButton(btnVentas);
-        contentArea.getChildren().clear();
     }
 
     @FXML
     private void onCompras() {
-        moduleTitle.setText("Compras — Próximamente");
+        loadModule("/opty/view/fxml/compras-view.fxml", "Módulo de Compras");
         setActiveButton(btnCompras);
-        contentArea.getChildren().clear();
     }
 
     @FXML
     private void onInventario() {
-        moduleTitle.setText("Inventario — Próximamente");
+        loadModule("/opty/view/fxml/inventario-view.fxml", "Inventario & Kardex");
         setActiveButton(btnInventario);
-        contentArea.getChildren().clear();
     }
 
     @FXML
     private void onUsuarios() {
-        moduleTitle.setText("Usuarios — Próximamente");
+        loadModule("/opty/view/fxml/usuarios-view.fxml", "Módulo de Usuarios");
         setActiveButton(btnUsuarios);
-        contentArea.getChildren().clear();
     }
 
     @FXML
     private void onOrdenes() {
-        moduleTitle.setText("Órdenes de Trabajo — Próximamente");
+        loadModule("/opty/view/fxml/ordenes-view.fxml", "Órdenes de Trabajo");
         setActiveButton(btnOrdenes);
-        contentArea.getChildren().clear();
     }
 
     @FXML
     private void onLogout() {
         try {
+            UserSession.getInstance().cleanSession();
             var loader = new FXMLLoader(getClass().getResource("/opty/view/fxml/login-view.fxml"));
             var root = (Parent) loader.load();
             var controller = (LoginController) loader.getController();
