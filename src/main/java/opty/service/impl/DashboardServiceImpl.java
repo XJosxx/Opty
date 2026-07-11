@@ -16,6 +16,8 @@ import opty.repository.ProductoRepository;
 import opty.repository.implementacion.ProductoRepositoryImpl;
 import opty.repository.VentaRepository;
 import opty.repository.implementacion.VentaRepositoryImpl;
+import opty.repository.ConfigTiendaRepository;
+import opty.repository.implementacion.ConfigTiendaRepositoryImpl;
 import opty.service.DashboardService;
 
 import opty.config.DatabaseConfig;
@@ -208,6 +210,190 @@ public class DashboardServiceImpl implements DashboardService {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error al obtener ventas de últimos 7 días", e);
+        }
+        return list;
+    }
+
+    private String getTiendaCodigo(Integer tiendaId) {
+        if (tiendaId == null) return null;
+        var repo = new ConfigTiendaRepositoryImpl();
+        return repo.findById(tiendaId)
+                .map(opty.model.entity.ConfigTienda::getCodigo)
+                .orElse(null);
+    }
+
+    @Override
+    public List<ResumenVentasTienda> getResumenVentasTienda(Integer tiendaId) {
+        var list = new ArrayList<ResumenVentasTienda>();
+        var tiendaCodigo = getTiendaCodigo(tiendaId);
+        var sql = "SELECT tienda, nombre_optica, total_ventas, total_subtotal, total_igv, total_con_igv, cobrado_efectivo, cobrado_yape, cobrado_tarjeta, cobrado_transferencia FROM v_resumen_ventas_tienda";
+        if (tiendaCodigo != null) {
+            sql += " WHERE tienda = ?";
+        }
+        try (var conn = DatabaseConfig.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+            if (tiendaCodigo != null) {
+                ps.setString(1, tiendaCodigo);
+            }
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new ResumenVentasTienda(
+                        rs.getString("tienda"),
+                        rs.getString("nombre_optica"),
+                        rs.getInt("total_ventas"),
+                        rs.getBigDecimal("total_subtotal"),
+                        rs.getBigDecimal("total_igv"),
+                        rs.getBigDecimal("total_con_igv"),
+                        rs.getBigDecimal("cobrado_efectivo"),
+                        rs.getBigDecimal("cobrado_yape"),
+                        rs.getBigDecimal("cobrado_tarjeta"),
+                        rs.getBigDecimal("cobrado_transferencia")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al consultar v_resumen_ventas_tienda", e);
+        }
+        return list;
+    }
+
+    @Override
+    public List<InsumoLiniado> getInsumosBajoMinimoView(Integer tiendaId) {
+        var list = new ArrayList<InsumoLiniado>();
+        var tiendaCodigo = getTiendaCodigo(tiendaId);
+        var sql = "SELECT tienda, codigo_insumo, nombre, categoria, stock_actual, stock_minimo, unidades_faltantes FROM v_insumos_bajo_minimo";
+        if (tiendaCodigo != null) {
+            sql += " WHERE tienda = ?";
+        }
+        try (var conn = DatabaseConfig.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+            if (tiendaCodigo != null) {
+                ps.setString(1, tiendaCodigo);
+            }
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new InsumoLiniado(
+                        rs.getString("tienda"),
+                        rs.getString("codigo_insumo"),
+                        rs.getString("nombre"),
+                        rs.getString("categoria"),
+                        rs.getInt("stock_actual"),
+                        rs.getInt("stock_minimo"),
+                        rs.getInt("unidades_faltantes")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al consultar v_insumos_bajo_minimo", e);
+        }
+        return list;
+    }
+
+    @Override
+    public List<HistorialClinicoReciente> getHistorialClinicoPaciente(Integer tiendaId, int limit) {
+        var list = new ArrayList<HistorialClinicoReciente>();
+        var tiendaCodigo = getTiendaCodigo(tiendaId);
+        var sql = "SELECT paciente, num_documento, fecha_consulta, motivo, graduacion_od, graduacion_oi, observaciones, edad, tienda FROM v_historial_clinico_paciente";
+        if (tiendaCodigo != null) {
+            sql += " WHERE tienda = ?";
+        }
+        sql += " LIMIT ?";
+        try (var conn = DatabaseConfig.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+            if (tiendaCodigo != null) {
+                ps.setString(1, tiendaCodigo);
+                ps.setInt(2, limit);
+            } else {
+                ps.setInt(1, limit);
+            }
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    var ts = rs.getTimestamp("fecha_consulta");
+                    var fecha = ts != null ? ts.toLocalDateTime() : null;
+                    list.add(new HistorialClinicoReciente(
+                        rs.getString("paciente"),
+                        rs.getString("num_documento"),
+                        fecha,
+                        rs.getString("motivo"),
+                        rs.getString("graduacion_od"),
+                        rs.getString("graduacion_oi"),
+                        rs.getString("observaciones"),
+                        rs.getInt("edad"),
+                        rs.getString("tienda")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al consultar v_historial_clinico_paciente", e);
+        }
+        return list;
+    }
+
+    @Override
+    public List<OrdenPendienteView> getOrdenesPendientesView(Integer tiendaId) {
+        var list = new ArrayList<OrdenPendienteView>();
+        var tiendaCodigo = getTiendaCodigo(tiendaId);
+        var sql = "SELECT orden_id, estado_fisico, tipo_trabajo, fecha_creacion, fecha_prometida, alerta, paciente, tienda FROM v_ordenes_pendientes";
+        if (tiendaCodigo != null) {
+            sql += " WHERE tienda = ?";
+        }
+        try (var conn = DatabaseConfig.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+            if (tiendaCodigo != null) {
+                ps.setString(1, tiendaCodigo);
+            }
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    var tsCreacion = rs.getTimestamp("fecha_creacion");
+                    var tsPrometida = rs.getTimestamp("fecha_prometida");
+                    list.add(new OrdenPendienteView(
+                        rs.getInt("orden_id"),
+                        rs.getString("estado_fisico"),
+                        rs.getString("tipo_trabajo"),
+                        tsCreacion != null ? tsCreacion.toLocalDateTime() : null,
+                        tsPrometida != null ? tsPrometida.toLocalDateTime() : null,
+                        rs.getString("alerta"),
+                        rs.getString("paciente"),
+                        rs.getString("tienda")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al consultar v_ordenes_pendientes", e);
+        }
+        return list;
+    }
+
+    @Override
+    public List<ProductoDisponibleView> getProductosDisponiblesView(Integer tiendaId) {
+        var list = new ArrayList<ProductoDisponibleView>();
+        var tiendaCodigo = getTiendaCodigo(tiendaId);
+        var sql = "SELECT producto_id, tienda, codigo_producto, nombre, categoria, genero_objetivo, precio_venta, stock_actual, stock_minimo FROM v_productos_disponibles";
+        if (tiendaCodigo != null) {
+            sql += " WHERE tienda = ?";
+        }
+        try (var conn = DatabaseConfig.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+            if (tiendaCodigo != null) {
+                ps.setString(1, tiendaCodigo);
+            }
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new ProductoDisponibleView(
+                        rs.getInt("producto_id"),
+                        rs.getString("tienda"),
+                        rs.getString("codigo_producto"),
+                        rs.getString("nombre"),
+                        rs.getString("categoria"),
+                        rs.getString("genero_objetivo"),
+                        rs.getBigDecimal("precio_venta"),
+                        rs.getInt("stock_actual"),
+                        rs.getInt("stock_minimo")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al consultar v_productos_disponibles", e);
         }
         return list;
     }

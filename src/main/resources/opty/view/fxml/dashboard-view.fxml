@@ -8,12 +8,15 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.chart.AreaChart?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
 
 <ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.DashboardController">
     <AnchorPane styleClass="dashboard-root">
         <VBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+            <!-- Metric Cards Row -->
             <GridPane hgap="20" vgap="20">
                 <columnConstraints>
                     <ColumnConstraints hgrow="ALWAYS" minWidth="200" percentWidth="25" />
@@ -42,10 +45,11 @@
                 </VBox>
             </GridPane>
 
+            <!-- Charts Row 1 -->
             <GridPane hgap="20" vgap="20">
                 <columnConstraints>
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="400" percentWidth="65" />
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="200" percentWidth="35" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="400" percentWidth="60" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="300" percentWidth="40" />
                 </columnConstraints>
                 <rowConstraints>
                     <RowConstraints minHeight="300" vgrow="ALWAYS" />
@@ -62,26 +66,58 @@
                     </AreaChart>
                 </VBox>
                 <VBox spacing="12" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                    <Label styleClass="section-title" text="TOP VENDEDORES" />
-                    <VBox fx:id="vendedoresLeaderboard" spacing="10" VBox.vgrow="ALWAYS" />
+                    <Label styleClass="section-title" text="MÉTODOS DE PAGO (DISTRIBUCIÓN)" />
+                    <PieChart fx:id="paymentChart" legendVisible="true" prefHeight="260.0" />
                 </VBox>
             </GridPane>
 
+            <!-- Charts Row 2 -->
             <GridPane hgap="20" vgap="20">
                 <columnConstraints>
                     <ColumnConstraints hgrow="ALWAYS" minWidth="300" percentWidth="50" />
                     <ColumnConstraints hgrow="ALWAYS" minWidth="300" percentWidth="50" />
                 </columnConstraints>
                 <rowConstraints>
+                    <RowConstraints minHeight="300" vgrow="ALWAYS" />
+                </rowConstraints>
+                <VBox spacing="12" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label styleClass="section-title" text="STOCK DISPONIBLE POR CATEGORÍA" />
+                    <BarChart fx:id="productsChart" legendVisible="false" prefHeight="260.0">
+                        <xAxis>
+                            <CategoryAxis fx:id="prodXAxis" side="BOTTOM" />
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis fx:id="prodYAxis" side="LEFT" />
+                        </yAxis>
+                    </BarChart>
+                </VBox>
+                <VBox spacing="12" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label styleClass="section-title" text="HISTORIAL CLÍNICO RECIENTE" />
+                    <VBox fx:id="historialClinicoList" spacing="10" VBox.vgrow="ALWAYS" />
+                </VBox>
+            </GridPane>
+
+            <!-- Lists Row -->
+            <GridPane hgap="20" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="250" percentWidth="33" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="250" percentWidth="34" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="250" percentWidth="33" />
+                </columnConstraints>
+                <rowConstraints>
                     <RowConstraints vgrow="ALWAYS" />
                 </rowConstraints>
                 <VBox spacing="12" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                    <Label styleClass="section-title" text="ÓRDENES VENCIDAS" />
-                    <VBox fx:id="ordenesVencidasList" spacing="6" />
+                    <Label styleClass="section-title" text="TOP VENDEDORES" />
+                    <VBox fx:id="vendedoresLeaderboard" spacing="10" VBox.vgrow="ALWAYS" />
                 </VBox>
                 <VBox spacing="12" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                    <Label styleClass="section-title" text="PACIENTES RECIENTES" />
-                    <VBox fx:id="pacientesRecientesList" spacing="6" />
+                    <Label styleClass="section-title" text="INSUMOS BAJO STOCK MÍNIMO" />
+                    <VBox fx:id="insumosBajoStockList" spacing="6" VBox.vgrow="ALWAYS" />
+                </VBox>
+                <VBox spacing="12" styleClass="card" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                    <Label styleClass="section-title" text="ESTADO ÓRDENES PENDIENTES" />
+                    <VBox fx:id="ordenesPendientesList" spacing="6" VBox.vgrow="ALWAYS" />
                 </VBox>
             </GridPane>
         </VBox>
