@@ -83,16 +83,25 @@ public class DashboardController implements ModuleController {
 
     private void cargarGraficoVentas(Integer tiendaId) {
         salesChart.getData().clear();
-        var trend = dashboardService.getVentasUltimos7Dias(tiendaId);
-
-        var series = new XYChart.Series<String, Number>();
+        
+        var trendSales = dashboardService.getVentasUltimos7Dias(tiendaId);
+        var seriesSales = new XYChart.Series<String, Number>();
+        seriesSales.setName("Ingresos (Ventas)");
         var formatter = DateTimeFormatter.ofPattern("dd/MM");
 
-        for (var day : trend) {
-            series.getData().add(new XYChart.Data<>(day.date().format(formatter), day.totalSales()));
+        for (var day : trendSales) {
+            seriesSales.getData().add(new XYChart.Data<>(day.date().format(formatter), day.totalSales()));
         }
 
-        salesChart.getData().add(series);
+        var trendPurchases = dashboardService.getComprasUltimos7Dias(tiendaId);
+        var seriesPurchases = new XYChart.Series<String, Number>();
+        seriesPurchases.setName("Egresos (Compras)");
+
+        for (var day : trendPurchases) {
+            seriesPurchases.getData().add(new XYChart.Data<>(day.date().format(formatter), day.totalSales()));
+        }
+
+        salesChart.getData().addAll(seriesSales, seriesPurchases);
     }
 
     private void cargarGraficoPagos(Integer tiendaId) {

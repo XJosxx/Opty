@@ -11,14 +11,17 @@ import opty.model.entity.HistorialClinico;
 import opty.model.entity.Paciente;
 import opty.model.entity.Usuario;
 import opty.model.entity.Producto;
+import opty.model.entity.VentaCabecera;
 import opty.model.enums.TipoComprobante;
 import opty.model.enums.TipoDocumento;
 import opty.service.ConsultaService;
 import opty.service.PacienteService;
 import opty.service.ProductoService;
+import opty.service.VentaService;
 import opty.service.impl.ConsultaServiceImpl;
 import opty.service.impl.PacienteServiceImpl;
 import opty.service.impl.ProductoServiceImpl;
+import opty.service.impl.VentaServiceImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,6 +35,7 @@ public class PacientesController implements ModuleController {
     @FXML private TableColumn<Paciente, String> colDocumento;
     @FXML private TableColumn<Paciente, String> colNombre;
     @FXML private TableColumn<Paciente, String> colTelefono;
+    @FXML private TableColumn<Paciente, String> colEdad;
 
     // --- Columna Derecha: Vista Detalle ---
     @FXML private VBox paneDetalle;
@@ -52,11 +56,35 @@ public class PacientesController implements ModuleController {
 
     // --- Formulario Nueva Consulta ---
     @FXML private TextField txtConsMotivo;
-    @FXML private TextField txtGraduacionOD;
-    @FXML private TextField txtGraduacionOI;
     @FXML private TextArea txtConsObservaciones;
     @FXML private TextField txtConsCosto;
     @FXML private ComboBox<TipoComprobante> comboTipoComprobante;
+
+    // --- Medidas Oculares Estructuradas ---
+    @FXML private TextField txtOdEsfera;
+    @FXML private TextField txtOdCilindro;
+    @FXML private TextField txtOdEje;
+    @FXML private TextField txtOdAdicion;
+    @FXML private TextField txtOdAv;
+    @FXML private TextField txtOdDp;
+
+    @FXML private TextField txtOiEsfera;
+    @FXML private TextField txtOiCilindro;
+    @FXML private TextField txtOiEje;
+    @FXML private TextField txtOiAdicion;
+    @FXML private TextField txtOiAv;
+    @FXML private TextField txtOiDp;
+
+    // --- Última Venta / Compra ---
+    @FXML private Label lblUltimaVenta;
+
+    // --- Tabla de Ventas (Compras del Paciente) ---
+    @FXML private TableView<VentaCabecera> tableVentasPaciente;
+    @FXML private TableColumn<VentaCabecera, String> colVentaTicket;
+    @FXML private TableColumn<VentaCabecera, String> colVentaFecha;
+    @FXML private TableColumn<VentaCabecera, String> colVentaTipo;
+    @FXML private TableColumn<VentaCabecera, String> colVentaTotal;
+    @FXML private TableColumn<VentaCabecera, String> colVentaEstado;
 
     // --- Formulario Nuevo Paciente ---
     @FXML private VBox paneNuevoPaciente;
@@ -75,6 +103,7 @@ public class PacientesController implements ModuleController {
     private final PacienteService pacienteService = new PacienteServiceImpl();
     private final ConsultaService consultaService = new ConsultaServiceImpl();
     private final ProductoService productoService = new ProductoServiceImpl();
+    private final VentaService ventaService = new VentaServiceImpl();
     
     private Stage stage;
     private Usuario usuario;
@@ -96,6 +125,16 @@ public class PacientesController implements ModuleController {
         colDocumento.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getNumDocumento()));
         colNombre.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().nombreCompleto()));
         colTelefono.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTelefono() != null ? cell.getValue().getTelefono() : "-"));
+        
+        // Enlazar columna de Edad
+        colEdad.setCellValueFactory(cell -> {
+            var dob = cell.getValue().getFechaNacimiento();
+            if (dob != null) {
+                int age = java.time.Period.between(dob, java.time.LocalDate.now()).getYears();
+                return new SimpleStringProperty(age + " años");
+            }
+            return new SimpleStringProperty("-");
+        });
 
         // Enlazar columnas de la tabla de Consultas
         colConsFecha.setCellValueFactory(cell -> new SimpleStringProperty(
@@ -106,10 +145,19 @@ public class PacientesController implements ModuleController {
             var consulta = cell.getValue();
             var hc = consultaService.findHistorialByConsultaId(consulta.getId());
             if (hc != null) {
-                return new SimpleStringProperty("OD: " + hc.getGraduacionOd() + " | OI: " + hc.getGraduacionOi());
+                return new SimpleStringProperty("OD: " + formatGraduacion(hc.getGraduacionOd()) + " | OI: " + formatGraduacion(hc.getGraduacionOi()));
             }
             return new SimpleStringProperty("-");
         });
+
+        // Enlazar columnas de la tabla de Ventas (Compras del Paciente)
+        colVentaTicket.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getNumeroTicket()));
+        colVentaFecha.setCellValueFactory(cell -> new SimpleStringProperty(
+                cell.getValue().getFechaEmision() != null ? cell.getValue().getFechaEmision().toString().replace('T', ' ').substring(0, 16) : "-"
+        ));
+        colVentaTipo.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTipoComprobante().name()));
+        colVentaTotal.setCellValueFactory(cell -> new SimpleStringProperty("S/ " + cell.getValue().getMontoTotal().toPlainString()));
+        colVentaEstado.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getEstadoFinanciero().name()));
 
         // Escuchar cambios de selección en la tabla de pacientes
         tablePacientes.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -140,7 +188,12 @@ public class PacientesController implements ModuleController {
 
         lblPacienteNombre.setText(p.nombreCompleto());
         lblPacienteDocumento.setText(p.getTipoDocumento() + ": " + p.getNumDocumento());
-        lblPacienteFecNac.setText(p.getFechaNacimiento() != null ? p.getFechaNacimiento().toString() : "-");
+        if (p.getFechaNacimiento() != null) {
+            int age = java.time.Period.between(p.getFechaNacimiento(), java.time.LocalDate.now()).getYears();
+            lblPacienteFecNac.setText(p.getFechaNacimiento().toString() + " (" + age + " años)");
+        } else {
+            lblPacienteFecNac.setText("-");
+        }
         lblPacienteTelf.setText(p.getTelefono() != null ? p.getTelefono() : "-");
         lblPacienteTienda.setText("Tienda #" + p.getTiendaId());
 
@@ -148,13 +201,41 @@ public class PacientesController implements ModuleController {
         var consultas = consultaService.findByPacienteId(p.getId());
         tableConsultas.setItems(FXCollections.observableArrayList(consultas));
 
+        // Cargar historial de ventas (compras del paciente)
+        var ventas = ventaService.findByPacienteId(p.getId());
+        tableVentasPaciente.setItems(FXCollections.observableArrayList(ventas));
+
+        // Mostrar resumen de última compra/venta en formulario de nueva consulta
+        if (!ventas.isEmpty()) {
+            var lastVenta = ventas.get(0); // findByPacienteId is sorted by date DESC in repository
+            var fechaStr = lastVenta.getFechaEmision() != null ? lastVenta.getFechaEmision().toString().replace('T', ' ').substring(0, 16) : "-";
+            lblUltimaVenta.setText(lastVenta.getTipoComprobante() + " " + lastVenta.getNumeroTicket() + 
+                                  " | Total: S/ " + lastVenta.getMontoTotal().toPlainString() + 
+                                  " | Fecha: " + fechaStr + " | Estado: " + lastVenta.getEstadoFinanciero());
+        } else {
+            lblUltimaVenta.setText("El paciente no registra compras previas.");
+        }
+
         // Limpiar formulario de consulta
         txtConsMotivo.clear();
-        txtGraduacionOD.clear();
-        txtGraduacionOI.clear();
         txtConsObservaciones.clear();
         txtConsCosto.setText("40.00");
         comboTipoComprobante.getSelectionModel().select(TipoComprobante.BOLETA);
+
+        // Limpiar parámetros oculares estructurados
+        txtOdEsfera.clear();
+        txtOdCilindro.clear();
+        txtOdEje.clear();
+        txtOdAdicion.clear();
+        txtOdAv.clear();
+        txtOdDp.clear();
+        
+        txtOiEsfera.clear();
+        txtOiCilindro.clear();
+        txtOiEje.clear();
+        txtOiAdicion.clear();
+        txtOiAv.clear();
+        txtOiDp.clear();
 
         tabPanePaciente.getSelectionModel().select(0); // Mostrar pestaña de historial
     }
@@ -301,8 +382,16 @@ public class PacientesController implements ModuleController {
             // Registrar Historial Clínico de refracción
             var hc = new HistorialClinico();
             hc.setConsultaId(consulta.getId());
-            hc.setGraduacionOd(txtGraduacionOD.getText());
-            hc.setGraduacionOi(txtGraduacionOI.getText());
+            
+            // Serializar los campos estructurados de refracción a JSON
+            hc.setGraduacionOd(serializeGraduacion(
+                txtOdEsfera.getText(), txtOdCilindro.getText(), txtOdEje.getText(),
+                txtOdAdicion.getText(), txtOdAv.getText(), txtOdDp.getText()
+            ));
+            hc.setGraduacionOi(serializeGraduacion(
+                txtOiEsfera.getText(), txtOiCilindro.getText(), txtOiEje.getText(),
+                txtOiAdicion.getText(), txtOiAv.getText(), txtOiDp.getText()
+            ));
             hc.setObservaciones(txtConsObservaciones.getText());
             
             consultaService.saveHistorialClinico(hc);
@@ -323,5 +412,54 @@ public class PacientesController implements ModuleController {
         alert.setContentText(content);
         alert.initOwner(stage);
         alert.showAndWait();
+    }
+
+    // --- Auxiliares para serialización y formato JSON ---
+    private String serializeGraduacion(String esfera, String cilindro, String eje, String adicion, String av, String dp) {
+        return String.format(
+            "{\"esfera\":\"%s\",\"cilindro\":\"%s\",\"eje\":\"%s\",\"adicion\":\"%s\",\"av\":\"%s\",\"dp\":\"%s\"}",
+            esfera != null ? esfera.trim().replace("\"", "\\\"") : "",
+            cilindro != null ? cilindro.trim().replace("\"", "\\\"") : "",
+            eje != null ? eje.trim().replace("\"", "\\\"") : "",
+            adicion != null ? adicion.trim().replace("\"", "\\\"") : "",
+            av != null ? av.trim().replace("\"", "\\\"") : "",
+            dp != null ? dp.trim().replace("\"", "\\\"") : ""
+        );
+    }
+
+    private String formatGraduacion(String jsonStr) {
+        if (jsonStr == null || jsonStr.isBlank()) return "-";
+        if (!jsonStr.trim().startsWith("{")) return jsonStr; // backward compatibility
+        try {
+            String esfera = extractJsonValue(jsonStr, "esfera");
+            String cilindro = extractJsonValue(jsonStr, "cilindro");
+            String eje = extractJsonValue(jsonStr, "eje");
+            String adicion = extractJsonValue(jsonStr, "adicion");
+            String av = extractJsonValue(jsonStr, "av");
+            String dp = extractJsonValue(jsonStr, "dp");
+            
+            StringBuilder sb = new StringBuilder();
+            if (!esfera.isEmpty()) sb.append("ESF: ").append(esfera).append(" ");
+            if (!cilindro.isEmpty()) sb.append("CIL: ").append(cilindro).append(" ");
+            if (!eje.isEmpty()) sb.append("EJE: ").append(eje).append(" ");
+            if (!adicion.isEmpty()) sb.append("ADD: ").append(adicion).append(" ");
+            if (!av.isEmpty()) sb.append("AV: ").append(av).append(" ");
+            if (!dp.isEmpty()) sb.append("DP: ").append(dp).append(" ");
+            
+            String res = sb.toString().trim();
+            return res.isEmpty() ? "-" : res;
+        } catch (Exception e) {
+            return jsonStr;
+        }
+    }
+
+    private String extractJsonValue(String json, String key) {
+        String pattern = "\"" + key + "\"\\s*:\\s*\"([^\"]*)\"";
+        java.util.regex.Pattern r = java.util.regex.Pattern.compile(pattern);
+        java.util.regex.Matcher m = r.matcher(json);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return "";
     }
 }

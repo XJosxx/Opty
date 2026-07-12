@@ -214,6 +214,39 @@ public class DashboardServiceImpl implements DashboardService {
         return list;
     }
 
+    @Override
+    public List<DailySales> getComprasUltimos7Dias(Integer tiendaId) {
+        var list = new ArrayList<DailySales>();
+        var sql = tiendaId != null ?
+                "SELECT DATE(c.fecha_emision) as dia, SUM(c.monto_total) as total " +
+                "FROM compras_cabecera c " +
+                "WHERE c.tienda_id = ? AND c.fecha_emision >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) " +
+                "GROUP BY DATE(c.fecha_emision) " +
+                "ORDER BY dia ASC" :
+                "SELECT DATE(c.fecha_emision) as dia, SUM(c.monto_total) as total " +
+                "FROM compras_cabecera c " +
+                "WHERE c.fecha_emision >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) " +
+                "GROUP BY DATE(c.fecha_emision) " +
+                "ORDER BY dia ASC";
+
+        try (var conn = DatabaseConfig.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+            if (tiendaId != null) {
+                ps.setInt(1, tiendaId);
+            }
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    var date = rs.getDate("dia").toLocalDate();
+                    var total = rs.getBigDecimal("total");
+                    list.add(new DailySales(date, total != null ? total : BigDecimal.ZERO));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener compras de últimos 7 días", e);
+        }
+        return list;
+    }
+
     private String getTiendaCodigo(Integer tiendaId) {
         if (tiendaId == null) return null;
         var repo = new ConfigTiendaRepositoryImpl();

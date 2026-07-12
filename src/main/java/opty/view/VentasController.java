@@ -151,20 +151,48 @@ public class VentasController implements ModuleController {
 
     @FXML
     private void onBuscarCliente() {
-        var doc = txtClienteDoc.getText();
-        if (doc == null || doc.isBlank()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Documento vacío", "Ingrese el número de documento de identidad del cliente.");
+        var term = txtClienteDoc.getText();
+        if (term == null || term.isBlank()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Búsqueda vacía", "Ingrese el número de documento o nombre del cliente.");
             return;
         }
 
-        var opt = pacienteService.findByNumDocumento(doc);
+        // 1. Intentar buscar por documento exacto
+        var opt = pacienteService.findByNumDocumento(term);
         if (opt.isPresent()) {
             pacienteSeleccionado = opt.get();
             lblClienteNombre.setText(pacienteSeleccionado.nombreCompleto());
-        } else {
+            return;
+        }
+
+        // 2. Intentar buscar por nombre (la consulta SQL en searchByNombre busca en nombre completo y documento)
+        var matches = pacienteService.searchByNombre(term);
+        // Filtrar por la tienda del usuario activo
+        if (usuario != null) {
+            matches = matches.stream()
+                    .filter(p -> p.getTiendaId().equals(usuario.getTiendaId()))
+                    .toList();
+        }
+
+        if (matches.isEmpty()) {
             pacienteSeleccionado = null;
             lblClienteNombre.setText("-");
-            mostrarAlerta(Alert.AlertType.WARNING, "No encontrado", "No se encontró ningún paciente con el documento ingresado.");
+            mostrarAlerta(Alert.AlertType.WARNING, "No encontrado", "No se encontró ningún paciente con el documento o nombre ingresado.");
+        } else if (matches.size() == 1) {
+            pacienteSeleccionado = matches.get(0);
+            lblClienteNombre.setText(pacienteSeleccionado.nombreCompleto());
+        } else {
+            // Múltiples coincidencias, mostrar cuadro de diálogo para seleccionar
+            var dialog = new ChoiceDialog<Paciente>(matches.get(0), matches);
+            dialog.setTitle("Seleccionar Cliente");
+            dialog.setHeaderText("Se encontraron múltiples clientes coincidentes.");
+            dialog.setContentText("Seleccione el cliente correspondiente:");
+            dialog.initOwner(stage);
+            var result = dialog.showAndWait();
+            if (result.isPresent()) {
+                pacienteSeleccionado = result.get();
+                lblClienteNombre.setText(pacienteSeleccionado.nombreCompleto());
+            }
         }
     }
 

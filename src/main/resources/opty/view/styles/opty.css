@@ -247,6 +247,32 @@
     -fx-background-color: rgba(155, 178, 201, 0.08);
 }
 
+.table-view .table-row-cell:selected {
+    -fx-background-color: #cbd8e6;
+}
+
+.table-view .table-row-cell:selected .text {
+    -fx-fill: -color-graphite-dark;
+}
+
+.table-view .table-row-cell:selected .table-cell {
+    -fx-text-fill: -color-graphite-dark;
+}
+
+.table-view .table-row-cell:selected:focused {
+    -fx-background-color: #b0c7db;
+}
+
+.list-cell:selected {
+    -fx-background-color: #cbd8e6;
+    -fx-text-fill: -color-graphite-dark;
+}
+
+.list-cell:selected:focused {
+    -fx-background-color: #b0c7db;
+    -fx-text-fill: -color-graphite-dark;
+}
+
 /* ==========================================================================
    Etiquetas de Estado (Badges)
    ========================================================================== */

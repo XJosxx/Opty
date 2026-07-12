@@ -99,6 +99,8 @@ public interface DashboardService {
 
     List<DailySales> getVentasUltimos7Dias(Integer tiendaId);
 
+    List<DailySales> getComprasUltimos7Dias(Integer tiendaId);
+
     // View-based querying methods
     List<ResumenVentasTienda> getResumenVentasTienda(Integer tiendaId);
 

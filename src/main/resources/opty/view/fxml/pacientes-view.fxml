@@ -19,9 +19,10 @@
                 
                 <TableView fx:id="tablePacientes" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colDocumento" text="Documento" prefWidth="100.0" />
-                        <TableColumn fx:id="colNombre" text="Nombre Completo" prefWidth="200.0" />
-                        <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="100.0" />
+                        <TableColumn fx:id="colDocumento" text="Documento" prefWidth="90.0" />
+                        <TableColumn fx:id="colNombre" text="Nombre Completo" prefWidth="185.0" />
+                        <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="90.0" />
+                        <TableColumn fx:id="colEdad" text="Edad" prefWidth="75.0" />
                     </columns>
                 </TableView>
             </VBox>
@@ -69,7 +70,20 @@
                                         <columns>
                                             <TableColumn fx:id="colConsFecha" text="Fecha" prefWidth="120.0" />
                                             <TableColumn fx:id="colConsMotivo" text="Motivo" prefWidth="250.0" />
-                                            <TableColumn fx:id="colConsGraduacion" text="Graduación OD/OI" prefWidth="200.0" />
+                                            <TableColumn fx:id="colConsGraduacion" text="Graduación OD/OI" prefWidth="250.0" />
+                                        </columns>
+                                    </TableView>
+                                </VBox>
+                            </Tab>
+                            <Tab text="Historial de Compras" closable="false">
+                                <VBox spacing="10" style="-fx-padding: 15px 0 0 0;">
+                                    <TableView fx:id="tableVentasPaciente" VBox.vgrow="ALWAYS" prefHeight="250.0">
+                                        <columns>
+                                            <TableColumn fx:id="colVentaTicket" text="Nº Ticket" prefWidth="120.0" />
+                                            <TableColumn fx:id="colVentaFecha" text="Fecha" prefWidth="130.0" />
+                                            <TableColumn fx:id="colVentaTipo" text="Comprobante" prefWidth="100.0" />
+                                            <TableColumn fx:id="colVentaTotal" text="Total" prefWidth="90.0" />
+                                            <TableColumn fx:id="colVentaEstado" text="Estado" prefWidth="100.0" />
                                         </columns>
                                     </TableView>
                                 </VBox>
@@ -77,26 +91,62 @@
                             <Tab fx:id="tabNuevaConsulta" text="Nueva Consulta" closable="false">
                                 <ScrollPane fitToWidth="true" styleClass="scroll-pane">
                                     <VBox spacing="15" style="-fx-padding: 15px 5px 0 5px;">
+                                        <!-- Cuadro Informativo de última compra / venta -->
+                                        <VBox spacing="6" style="-fx-background-color: -color-warm-beige-light; -fx-padding: 12px; -fx-background-radius: 8px; -fx-border-color: -color-warm-beige; -fx-border-width: 1px; -fx-border-radius: 8px;">
+                                            <Label style="-fx-font-weight: bold; -fx-text-fill: -color-graphite-dark;" text="Información de Última Compra / Venta:" />
+                                            <Label fx:id="lblUltimaVenta" style="-fx-text-fill: -color-info-text; -fx-font-weight: bold;" text="El paciente no registra compras previas." />
+                                        </VBox>
+                                        
                                         <Label styleClass="form-label" text="Motivo de la Consulta" />
                                         <TextField fx:id="txtConsMotivo" promptText="Describa el motivo de la atención..." />
                                         
-                                        <GridPane hgap="15" vgap="10">
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="50" />
-                                                <ColumnConstraints percentWidth="50" />
-                                            </columnConstraints>
-                                            <rowConstraints>
-                                                <RowConstraints />
-                                            </rowConstraints>
-                                            <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                                <Label styleClass="form-label" text="Graduación Ojo Derecho (OD)" />
-                                                <TextField fx:id="txtGraduacionOD" promptText="ej. Esf: -1.50, Cil: -0.75, Eje: 180" />
-                                            </VBox>
-                                            <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                                <Label styleClass="form-label" text="Graduación Ojo Izquierdo (OI)" />
-                                                <TextField fx:id="txtGraduacionOI" promptText="ej. Esf: -1.25, Cil: -0.50, Eje: 175" />
-                                            </VBox>
-                                        </GridPane>
+                                        <!-- Cuadro de Parámetros Oculares (OD / OI) -->
+                                        <VBox spacing="8" style="-fx-background-color: -color-warm-beige-light; -fx-padding: 12px; -fx-background-radius: 8px; -fx-border-color: -color-warm-beige; -fx-border-width: 1px; -fx-border-radius: 8px;">
+                                            <Label style="-fx-font-weight: bold; -fx-text-fill: -color-graphite-dark;" text="Medidas Oculares Estructuradas (Se guardarán en formato JSON)" />
+                                            <GridPane hgap="8" vgap="8">
+                                                <columnConstraints>
+                                                    <ColumnConstraints percentWidth="18" />
+                                                    <ColumnConstraints percentWidth="13" />
+                                                    <ColumnConstraints percentWidth="13" />
+                                                    <ColumnConstraints percentWidth="13" />
+                                                    <ColumnConstraints percentWidth="13" />
+                                                    <ColumnConstraints percentWidth="15" />
+                                                    <ColumnConstraints percentWidth="15" />
+                                                </columnConstraints>
+                                                <rowConstraints>
+                                                    <RowConstraints minHeight="25" />
+                                                    <RowConstraints minHeight="30" />
+                                                    <RowConstraints minHeight="30" />
+                                                </rowConstraints>
+                                                
+                                                <!-- Headers -->
+                                                <Label text="Ojo" style="-fx-font-weight: bold; -fx-font-size: 11px;" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <Label text="Esfera (ESF)" style="-fx-font-weight: bold; -fx-font-size: 11px;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                <Label text="Cilindro (CIL)" style="-fx-font-weight: bold; -fx-font-size: 11px;" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                                <Label text="Eje (EJE)" style="-fx-font-weight: bold; -fx-font-size: 11px;" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                                <Label text="Adición (ADD)" style="-fx-font-weight: bold; -fx-font-size: 11px;" GridPane.columnIndex="4" GridPane.rowIndex="0" />
+                                                <Label text="A. V. (AV)" style="-fx-font-weight: bold; -fx-font-size: 11px;" GridPane.columnIndex="5" GridPane.rowIndex="0" />
+                                                <Label text="D. P. (DP)" style="-fx-font-weight: bold; -fx-font-size: 11px;" GridPane.columnIndex="6" GridPane.rowIndex="0" />
+                                                
+                                                <!-- Ojo Derecho (OD) -->
+                                                <Label text="DERECHO (OD)" style="-fx-font-weight: bold; -fx-font-size: 11px;" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtOdEsfera" promptText="-1.50" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtOdCilindro" promptText="-0.75" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtOdEje" promptText="180" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtOdAdicion" promptText="+2.00" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtOdAv" promptText="20/20" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtOdDp" promptText="32" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+                                                
+                                                <!-- Ojo Izquierdo (OI) -->
+                                                <Label text="IZQUIERDO (OI)" style="-fx-font-weight: bold; -fx-font-size: 11px;" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                                <TextField fx:id="txtOiEsfera" promptText="-1.25" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <TextField fx:id="txtOiCilindro" promptText="-0.50" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                                <TextField fx:id="txtOiEje" promptText="175" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                                <TextField fx:id="txtOiAdicion" promptText="+2.00" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                                <TextField fx:id="txtOiAv" promptText="20/25" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="5" GridPane.rowIndex="2" />
+                                                <TextField fx:id="txtOiDp" promptText="31" style="-fx-font-size: 11px; -fx-padding: 5px;" GridPane.columnIndex="6" GridPane.rowIndex="2" />
+                                            </GridPane>
+                                        </VBox>
                                         
                                         <Label styleClass="form-label" text="Observaciones Clínicas" />
                                         <TextArea fx:id="txtConsObservaciones" prefHeight="80.0" promptText="Notas y recomendaciones adicionales..." />
@@ -198,3 +248,4 @@
         </HBox>
     </AnchorPane>
 </ScrollPane>
+

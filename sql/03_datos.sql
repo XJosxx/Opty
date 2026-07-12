@@ -189,11 +189,19 @@ INSERT INTO ordenes_trabajo (id, venta_id, historial_clinico_id, estado_fisico, 
 
 -- 14. KARDEX (Al insertar, el trigger va y actualiza los stocks a los catálogos)
 INSERT INTO kardex (tienda_id, usuario_id, insumo_id, producto_id, compra_id, venta_id, tipo_movimiento, motivo, cantidad, cantidad_saldo) VALUES
--- a. Inventario Inicial añadido para evitar stock negativo de Productos vendidos
-(1, 1, NULL, 1,  NULL, NULL, 'ENTRADA', 'Inventario Inicial', 10, 0),
-(1, 1, NULL, 2,  NULL, NULL, 'ENTRADA', 'Inventario Inicial', 10, 0),
-(2, 4, NULL, 7,  NULL, NULL, 'ENTRADA', 'Inventario Inicial', 10, 0),
-(3, 7, NULL, 10, NULL, NULL, 'ENTRADA', 'Inventario Inicial', 10, 0),
+-- a. Inventario Inicial añadido para evitar stock negativo de Productos vendidos y poblar categorías
+(1, 1, NULL, 1,  NULL, NULL, 'ENTRADA', 'Inventario Inicial', 15, 0),
+(1, 1, NULL, 2,  NULL, NULL, 'ENTRADA', 'Inventario Inicial', 12, 0),
+(1, 1, NULL, 3,  NULL, NULL, 'ENTRADA', 'Inventario Inicial', 25, 0),
+(1, 1, NULL, 13, NULL, NULL, 'ENTRADA', 'Inventario Inicial', 10, 0),
+(2, 4, NULL, 5,  NULL, NULL, 'ENTRADA', 'Inventario Inicial', 12, 0),
+(2, 4, NULL, 6,  NULL, NULL, 'ENTRADA', 'Inventario Inicial', 20, 0),
+(2, 4, NULL, 7,  NULL, NULL, 'ENTRADA', 'Inventario Inicial', 15, 0),
+(2, 4, NULL, 14, NULL, NULL, 'ENTRADA', 'Inventario Inicial', 10, 0),
+(3, 7, NULL, 9,  NULL, NULL, 'ENTRADA', 'Inventario Inicial', 15, 0),
+(3, 7, NULL, 10, NULL, NULL, 'ENTRADA', 'Inventario Inicial', 12, 0),
+(3, 7, NULL, 11, NULL, NULL, 'ENTRADA', 'Inventario Inicial', 30, 0),
+(3, 7, NULL, 15, NULL, NULL, 'ENTRADA', 'Inventario Inicial', 20, 0),
 -- b. Entradas de insumos por compras recibidas
 (1, 1, 1,  NULL, 1, NULL, 'ENTRADA', 'Recepción OC-2026-001',  50, 0),
 (1, 1, 3,  NULL, 1, NULL, 'ENTRADA', 'Recepción OC-2026-001',  10, 0),
