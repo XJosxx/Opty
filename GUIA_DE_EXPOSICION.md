@@ -22,10 +22,15 @@ Esta guía contiene la estructura cronometrada, el **guion palabra por palabra**
 
 *   **Acción en Pantalla**: Muestra el proyecto abierto en el IDE (IntelliJ o VS Code) enfocando la estructura de carpetas `model`, `repository`, `service` y `view`. Deja visible la pantalla de Login del programa ejecutándose.
 *   **Guion (Qué decir)**:
-    > "Buenas tardes, estimado profesor y miembros del jurado. Hoy les presentamos **Opty**, un sistema de escritorio empresarial diseñado específicamente para la gestión de cadenas de ópticas multiclínica. El flujo de negocio en una óptica no es una simple venta de productos; involucra una consulta médica visual, la emisión de una receta oftálmica, la generación de una orden de taller en laboratorio y, finalmente, el cobro y control de inventario.
+    > "Buenas tardes, estimado profesor y miembros del jurado. Hoy les presentamos **Opty**, un sistema de escritorio empresarial diseñado para la gestión integral de ópticas multiclínica. 
+    > Para soportar un flujo de negocio complejo (que va desde la cita clínica hasta la venta y orden de laboratorio) de manera limpia y mantenible, hemos estructurado la aplicación siguiendo una **Arquitectura de 4 Capas lógicas**:
     >
-    > Para soportar este flujo de forma robusta, hemos implementado una **Arquitectura en 4 Capas** bien desacoplada: Presentación (en JavaFX con estilos CSS personalizados), Negocio (en servicios Java), Datos (repositorios con interfaces DAO) y el motor de Base de Datos **MySQL 8.0**. 
-    > Cabe destacar que para el acceso a datos utilizamos **JDBC Plano** en lugar de ORMs pesados, logrando consultas sumamente veloces. Además, implementamos el pool de conexiones **HikariCP**, el cual nos permite reutilizar hilos de conexión de manera eficiente, evitando el consumo innecesario de recursos al abrir y cerrar conexiones en cada interacción de la interfaz."
+    > 1. **Capa de Presentación (paquete `opty.view`)**: Contiene los controladores de JavaFX y archivos FXML que manejan la interfaz de usuario y los eventos de pantalla.
+    > 2. **Capa de Negocio o Servicios (paquete `opty.service` e `impl`)**: Donde implementamos las reglas de negocio, validaciones y orquestación de operaciones de la óptica.
+    > 3. **Capa de Persistencia o Datos (paquete `opty.repository` e `implementacion`)**: Que ejecuta las sentencias SQL utilizando **JDBC Plano** de forma nativa para lograr un rendimiento óptimo.
+    > 4. **Capa de Dominio o Modelo (paquete `opty.model.entity` y `enums`)**: Que define las entidades del negocio (como `Paciente` o `Venta`) que viajan de manera segura entre todas las capas transportando la información.
+    >
+    > Además, para el acceso a datos evitamos el uso de ORMs pesados y optamos por **JDBC Plano** junto con **HikariCP**, un pool de conexiones ultraligero que administra y reutiliza hilos de conexión de manera eficiente, optimizando al máximo los recursos de la máquina y garantizando tiempos de respuesta mínimos."
 
 ---
 
@@ -148,3 +153,12 @@ Prepárate para defender técnicamente el proyecto con estas respuestas precisas
     > "Cuando un cliente deja un monto 'A cuenta', el sistema actualiza la cabecera con el estado financiero `PAGO_PARCIAL` o `POR_COBRAR`. 
     > En la tabla `movimientos_caja`, registramos de forma exacta únicamente el dinero ingresado físicamente en ese instante. 
     > Cuando el cliente retira su producto en el taller (módulo de Órdenes), el sistema detecta de forma automática la diferencia entre el total y lo pagado anteriormente, solicita el cobro del saldo pendiente en una ventana de confirmación, inserta la segunda transacción de ingreso en `movimientos_caja` y actualiza la venta a `PAGADO` en una transacción controlada por Java y base de datos."
+
+### 9. ¿Cómo está estructurada la arquitectura del sistema y por qué dicen que es de 4 capas?
+*   **Respuesta**:
+    > "El sistema está estructurado bajo una **Arquitectura en 4 Capas Lógicas**, cada una con una responsabilidad única y desacoplada mediante interfaces:
+    > 1. **Capa de Presentación (`opty.view`)**: Contiene los controladores de JavaFX que manejan la interfaz de usuario e interactúan con la vista FXML.
+    > 2. **Capa de Negocio / Servicios (`opty.service`)**: Contiene las interfaces y sus implementaciones (`impl`) que validan las reglas de negocio y orquestan las operaciones complejas de la aplicación.
+    > 3. **Capa de Acceso a Datos / Repositorio (`opty.repository`)**: Encargada de comunicarse directamente con la base de datos MySQL mediante sentencias SQL nativas y JDBC Plano.
+    > 4. **Capa de Dominio / Modelo (`opty.model`)**: Contiene las entidades y enums que representan el modelo de datos en memoria y que viajan de forma transversal entre todas las capas.
+    > Esta arquitectura nos permite que las capas sean independientes entre sí. Por ejemplo, podríamos cambiar la base de datos MySQL por una base de datos Oracle, o reemplazar JDBC por Spring Data/Hibernate simplemente modificando la capa de persistencia, sin tener que alterar el código visual o de negocio."
