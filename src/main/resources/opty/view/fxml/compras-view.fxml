@@ -5,122 +5,199 @@
 <?import javafx.geometry.Insets?>
 
 <ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.ComprasController">
-    <AnchorPane styleClass="dashboard-root">
-        <HBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
-            
-            <!-- Columna Izquierda: Proveedor e Insumo -->
-            <VBox spacing="20" HBox.hgrow="ALWAYS" prefWidth="500.0">
-                <!-- Card del Proveedor -->
-                <VBox spacing="15" styleClass="card">
-                    <Label styleClass="section-title" text="PROVEEDOR / DISTRIBUIDOR" />
-                    <Separator />
-                    
-                    <VBox spacing="6">
-                        <Label styleClass="form-label" text="Seleccione Proveedor" />
-                        <ComboBox fx:id="comboProveedores" prefWidth="500.0" promptText="Seleccione proveedor..." />
-                    </VBox>
-                </VBox>
-                
-                <!-- Card de Selección de Insumos -->
-                <VBox spacing="15" styleClass="card" VBox.vgrow="ALWAYS">
-                    <Label styleClass="section-title" text="AGREGAR INSUMOS / CRISTALES" />
-                    <Separator />
-                    
-                    <VBox spacing="6">
-                        <Label styleClass="form-label" text="Seleccione Insumo / Cristal" />
-                        <ComboBox fx:id="comboInsumos" prefWidth="500.0" promptText="Seleccione un insumo de la lista..." />
-                    </VBox>
-                    
-                    <GridPane hgap="15" vgap="10">
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="50" />
-                            <ColumnConstraints percentWidth="50" />
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints />
-                            <RowConstraints />
-                        </rowConstraints>
+    <TabPane styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+            <Tab text="Nueva Compra de Insumos">
+                <AnchorPane styleClass="dashboard-root">
+                    <HBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
                         
-                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                            <Label styleClass="form-label" text="Stock Actual" />
-                            <Label fx:id="lblStockIns" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="-" />
-                        </VBox>
-                        <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <Label styleClass="form-label" text="Precio Unit. Compra" />
-                            <TextField fx:id="txtPrecioComp" promptText="S/ 0.00" />
+                        <!-- Columna Izquierda: Proveedor e Insumo -->
+                        <VBox spacing="20" HBox.hgrow="ALWAYS" prefWidth="500.0">
+                            <!-- Card del Proveedor -->
+                            <VBox spacing="15" styleClass="card">
+                                <Label styleClass="section-title" text="PROVEEDOR / DISTRIBUIDOR" />
+                                <Separator />
+                                
+                                <VBox spacing="6">
+                                    <Label styleClass="form-label" text="Seleccione Proveedor" />
+                                    <ComboBox fx:id="comboProveedores" prefWidth="500.0" promptText="Seleccione proveedor..." />
+                                </VBox>
+                            </VBox>
+                            
+                            <!-- Card de Selección de Insumos -->
+                            <VBox spacing="15" styleClass="card" VBox.vgrow="ALWAYS">
+                                <Label styleClass="section-title" text="AGREGAR INSUMOS / CRISTALES" />
+                                <Separator />
+                                
+                                <VBox spacing="6">
+                                    <Label styleClass="form-label" text="Seleccione Insumo / Cristal" />
+                                    <ComboBox fx:id="comboInsumos" prefWidth="500.0" promptText="Seleccione un insumo de la lista..." />
+                                </VBox>
+                                
+                                <GridPane hgap="15" vgap="10">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="50" />
+                                        <ColumnConstraints percentWidth="50" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                    
+                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                        <Label styleClass="form-label" text="Stock Actual" />
+                                        <Label fx:id="lblStockIns" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="-" />
+                                    </VBox>
+                                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                        <Label styleClass="form-label" text="Precio Unit. Compra" />
+                                        <TextField fx:id="txtPrecioComp" promptText="S/ 0.00" />
+                                    </VBox>
+                                    
+                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" style="-fx-padding: 10px 0 0 0;">
+                                        <Label styleClass="form-label" text="Cantidad a Comprar" />
+                                        <HBox spacing="10">
+                                            <Spinner fx:id="spinCantidad" prefWidth="120.0" />
+                                            <Button onAction="#onAgregarCarrito" styleClass="btn-primary" text="Agregar Insumo" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                                        </HBox>
+                                    </VBox>
+                                </GridPane>
+                            </VBox>
                         </VBox>
                         
-                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" style="-fx-padding: 10px 0 0 0;">
-                            <Label styleClass="form-label" text="Cantidad a Comprar" />
-                            <HBox spacing="10">
-                                <Spinner fx:id="spinCantidad" prefWidth="120.0" />
-                                <Button onAction="#onAgregarCarrito" styleClass="btn-primary" text="Agregar Insumo" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
-                            </HBox>
+                        <!-- Columna Derecha: Carrito de Insumos y Totales -->
+                        <VBox spacing="20" HBox.hgrow="ALWAYS" prefWidth="660.0">
+                            <VBox spacing="15" styleClass="card" VBox.vgrow="ALWAYS">
+                                <Label styleClass="section-title" text="DETALLE DE ORDEN DE COMPRA" />
+                                <Separator />
+                                
+                                <TableView fx:id="tableCarrito" VBox.vgrow="ALWAYS" prefHeight="250.0">
+                                    <columns>
+                                        <TableColumn fx:id="colCartInsumo" text="Insumo / Material" prefWidth="250.0" />
+                                        <TableColumn fx:id="colCartPrecio" text="Precio Compra" prefWidth="100.0" />
+                                        <TableColumn fx:id="colCartCantidad" text="Cant." prefWidth="80.0" />
+                                        <TableColumn fx:id="colCartSubtotal" text="Subtotal" prefWidth="100.0" />
+                                        <TableColumn fx:id="colCartAcciones" text="Acción" prefWidth="80.0" />
+                                    </columns>
+                                </TableView>
+                                
+                                <Separator />
+                                
+                                <!-- Forma de Pago -->
+                                <VBox spacing="4">
+                                    <Label styleClass="form-label" text="Método de Pago (Egreso de Caja)" />
+                                    <ComboBox fx:id="comboMetodoPago" prefWidth="300.0" />
+                                </VBox>
+                                
+                                <!-- Resumen de Costos y Botón Final -->
+                                <HBox spacing="20" alignment="BOTTOM_RIGHT" style="-fx-padding: 15px 0 0 0;">
+                                    <GridPane hgap="20" vgap="5">
+                                        <columnConstraints>
+                                            <ColumnConstraints halignment="RIGHT" />
+                                            <ColumnConstraints halignment="RIGHT" prefWidth="100.0" />
+                                        </columnConstraints>
+                                        <rowConstraints>
+                                            <RowConstraints />
+                                            <RowConstraints />
+                                            <RowConstraints />
+                                            <RowConstraints />
+                                            <RowConstraints />
+                                        </rowConstraints>
+                                        
+                                        <Label style="-fx-font-size: 13px;" text="Subtotal:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="lblResSubtotal" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        
+                                        <Label style="-fx-font-size: 13px;" text="IGV (18%):" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="lblResIgv" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        
+                                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="TOTAL COMPRA:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Label fx:id="lblResTotal" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -color-graphite-dark;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: -color-info-text; -fx-font-weight: bold;" text="A Cuenta (Abono):" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TextField fx:id="txtMontoCuenta" prefWidth="100.0" promptText="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" style="-fx-font-size: 11px; -fx-padding: 3px;" />
+                            
+                                        <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="Saldo Pendiente:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <Label fx:id="lblSaldoPendiente" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    </GridPane>
+                                    
+                                    <Button onAction="#onProcesarCompra" styleClass="btn-primary" text="Procesar Compra" prefHeight="45.0" prefWidth="180.0" />
+                                </HBox>
+                            </VBox>
                         </VBox>
-                    </GridPane>
-                </VBox>
-            </VBox>
-            
-            <!-- Columna Derecha: Carrito de Insumos y Totales -->
-            <VBox spacing="20" HBox.hgrow="ALWAYS" prefWidth="660.0">
-                <VBox spacing="15" styleClass="card" VBox.vgrow="ALWAYS">
-                    <Label styleClass="section-title" text="DETALLE DE ORDEN DE COMPRA" />
-                    <Separator />
-                    
-                    <TableView fx:id="tableCarrito" VBox.vgrow="ALWAYS" prefHeight="250.0">
-                        <columns>
-                            <TableColumn fx:id="colCartInsumo" text="Insumo / Material" prefWidth="250.0" />
-                            <TableColumn fx:id="colCartPrecio" text="Precio Compra" prefWidth="100.0" />
-                            <TableColumn fx:id="colCartCantidad" text="Cant." prefWidth="80.0" />
-                            <TableColumn fx:id="colCartSubtotal" text="Subtotal" prefWidth="100.0" />
-                            <TableColumn fx:id="colCartAcciones" text="Acción" prefWidth="80.0" />
-                        </columns>
-                    </TableView>
-                    
-                    <Separator />
-                    
-                    <!-- Forma de Pago -->
-                    <VBox spacing="4">
-                        <Label styleClass="form-label" text="Método de Pago (Egreso de Caja)" />
-                        <ComboBox fx:id="comboMetodoPago" prefWidth="300.0" />
-                    </VBox>
-                    
-                    <!-- Resumen de Costos y Botón Final -->
-                    <HBox spacing="20" alignment="BOTTOM_RIGHT" style="-fx-padding: 15px 0 0 0;">
-                        <GridPane hgap="20" vgap="5">
-                            <columnConstraints>
-                                <ColumnConstraints halignment="RIGHT" />
-                                <ColumnConstraints halignment="RIGHT" prefWidth="100.0" />
-                            </columnConstraints>
-                            <rowConstraints>
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                            </rowConstraints>
-                            
-                            <Label style="-fx-font-size: 13px;" text="Subtotal:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                            <Label fx:id="lblResSubtotal" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                            
-                            <Label style="-fx-font-size: 13px;" text="IGV (18%):" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                            <Label fx:id="lblResIgv" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                            
-                            <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="TOTAL COMPRA:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                            <Label fx:id="lblResTotal" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -color-graphite-dark;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                            <Label style="-fx-font-size: 12px; -fx-text-fill: -color-info-text; -fx-font-weight: bold;" text="A Cuenta (Abono):" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                            <TextField fx:id="txtMontoCuenta" prefWidth="100.0" promptText="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" style="-fx-font-size: 11px; -fx-padding: 3px;" />
-
-                            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="Saldo Pendiente:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                            <Label fx:id="lblSaldoPendiente" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        </GridPane>
                         
-                        <Button onAction="#onProcesarCompra" styleClass="btn-primary" text="Procesar Compra" prefHeight="45.0" prefWidth="180.0" />
                     </HBox>
-                </VBox>
-            </VBox>
-            
-        </HBox>
-    </AnchorPane>
+                </AnchorPane>
+            </Tab>
+            <Tab text="Historial de Compras y Cuentas" onSelectionChanged="#onCargarHistorial">
+                <AnchorPane styleClass="dashboard-root">
+                    <HBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+                        
+                        <!-- Columna Izquierda: Listado de Órdenes de Compra -->
+                        <VBox spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="550.0">
+                            <Label styleClass="section-title" text="ÓRDENES DE COMPRA REGISTRADAS" />
+                            <Separator />
+                            <TableView fx:id="tableHistorial" VBox.vgrow="ALWAYS" prefHeight="400.0">
+                                <columns>
+                                    <TableColumn fx:id="colHistId" text="ID" prefWidth="50.0" />
+                                    <TableColumn fx:id="colHistOrden" text="Nro. Orden" prefWidth="120.0" />
+                                    <TableColumn fx:id="colHistProveedor" text="Proveedor" prefWidth="150.0" />
+                                    <TableColumn fx:id="colHistFecha" text="Fecha" prefWidth="110.0" />
+                                    <TableColumn fx:id="colHistEstadoFin" text="Est. Pago" prefWidth="95.0" />
+                                    <TableColumn fx:id="colHistTotal" text="Total" prefWidth="85.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+                        
+                        <!-- Columna Derecha: Detalle de Compra y Pago de Saldo -->
+                        <VBox fx:id="paneDetalleHist" spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="540.0" visible="false">
+                            <HBox alignment="CENTER_LEFT">
+                                <VBox HBox.hgrow="ALWAYS">
+                                    <Label fx:id="lblHistDetTitle" styleClass="section-title" text="DETALLE DE COMPRA #-" />
+                                    <Label fx:id="lblHistDetProveedor" styleClass="section-subtitle" text="Proveedor: -" />
+                                </VBox>
+                                <Label fx:id="lblHistDetEstadoBadge" text="PENDIENTE" />
+                            </HBox>
+                            <Separator />
+                            
+                            <TableView fx:id="tableDetalleHist" prefHeight="180.0" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colDetInsumo" text="Insumo / Material" prefWidth="250.0" />
+                                    <TableColumn fx:id="colDetPrecio" text="Precio Unit." prefWidth="90.0" />
+                                    <TableColumn fx:id="colDetCantidad" text="Cant." prefWidth="60.0" />
+                                    <TableColumn fx:id="colDetSubtotal" text="Subtotal" prefWidth="90.0" />
+                                </columns>
+                            </TableView>
+                            
+                            <Separator />
+                            
+                            <GridPane hgap="10" vgap="8">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="45" />
+                                    <ColumnConstraints percentWidth="55" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints minHeight="25" />
+                                    <RowConstraints minHeight="25" />
+                                    <RowConstraints minHeight="25" />
+                                </rowConstraints>
+                                
+                                <Label styleClass="form-label" text="Total de la Compra:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <Label fx:id="lblHistTotalCompra" style="-fx-font-weight: bold;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                
+                                <Label styleClass="form-label" text="Abonado a la Fecha:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <Label fx:id="lblHistAbonado" style="-fx-font-weight: bold; -fx-text-fill: -color-success-text;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                
+                                <Label styleClass="form-label" text="Saldo Pendiente de Pago:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <Label fx:id="lblHistSaldo" style="-fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            </GridPane>
+                            
+                            <Separator />
+                            
+                            <HBox fx:id="boxAccionesCompra" spacing="10" alignment="CENTER_RIGHT" />
+                        </VBox>
+                        
+                    </HBox>
+                </AnchorPane>
+            </Tab>
+        </tabs>
+    </TabPane>
 </ScrollPane>

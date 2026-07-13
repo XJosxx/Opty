@@ -22,6 +22,7 @@
                 <Button fx:id="btnCompras" onAction="#onCompras" styleClass="sidebar-btn" text="Compras" />
                 <Button fx:id="btnProveedores" onAction="#onProveedores" styleClass="sidebar-btn" text="Proveedores" />
                 <Button fx:id="btnInventario" onAction="#onInventario" styleClass="sidebar-btn" text="Inventario" />
+                <Button fx:id="btnCaja" onAction="#onCaja" styleClass="sidebar-btn" text="Control Caja" />
                 <Button fx:id="btnUsuarios" onAction="#onUsuarios" styleClass="sidebar-btn" text="Usuarios" />
                 <Button fx:id="btnOrdenes" onAction="#onOrdenes" styleClass="sidebar-btn" text="Órdenes Trabajo" />
             </VBox>

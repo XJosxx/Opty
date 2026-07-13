@@ -29,6 +29,7 @@ public class MainController implements ModuleController {
     @FXML private Button btnCompras;
     @FXML private Button btnProveedores;
     @FXML private Button btnInventario;
+    @FXML private Button btnCaja;
     @FXML private Button btnUsuarios;
     @FXML private Button btnOrdenes;
 
@@ -68,6 +69,8 @@ public class MainController implements ModuleController {
             btnProveedores.setManaged(false);
             btnInventario.setVisible(false);
             btnInventario.setManaged(false);
+            btnCaja.setVisible(false);
+            btnCaja.setManaged(false);
             btnUsuarios.setVisible(false);
             btnUsuarios.setManaged(false);
             
@@ -139,6 +142,12 @@ public class MainController implements ModuleController {
     public void onInventario() {
         loadModule("/opty/view/fxml/inventario-view.fxml", "Inventario & Kardex");
         setActiveButton(btnInventario);
+    }
+
+    @FXML
+    public void onCaja() {
+        loadModule("/opty/view/fxml/caja-view.fxml", "Control de Caja Chica");
+        setActiveButton(btnCaja);
     }
 
     @FXML

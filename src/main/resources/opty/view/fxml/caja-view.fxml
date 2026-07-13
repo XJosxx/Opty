@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.CajaController">
+    <AnchorPane styleClass="dashboard-root">
+        <VBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+            
+            <!-- Fila de Tarjetas (Indicadores Financieros) -->
+            <GridPane hgap="20" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="33.3" />
+                    <ColumnConstraints percentWidth="33.3" />
+                    <ColumnConstraints percentWidth="33.4" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="100.0" />
+                </rowConstraints>
+                
+                <!-- Tarjeta 1: Total Ingresos -->
+                <VBox spacing="8" styleClass="card" style="-fx-border-color: -color-success-text; -fx-border-width: 0 0 4px 0;" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: -color-graphite-soft; -fx-font-weight: bold;" text="TOTAL INGRESOS" />
+                    <Label fx:id="lblTotalIngresos" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: -color-success-text;" text="S/ 0.00" />
+                    <Label style="-fx-font-size: 10px; -fx-text-fill: -color-graphite-light;" text="Total cobrado en efectivo, tarjetas y transferencias." />
+                </VBox>
+                
+                <!-- Tarjeta 2: Total Egresos -->
+                <VBox spacing="8" styleClass="card" style="-fx-border-color: -color-danger-text; -fx-border-width: 0 0 4px 0;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: -color-graphite-soft; -fx-font-weight: bold;" text="TOTAL EGRESOS (COMPRAS/PAGOS)" />
+                    <Label fx:id="lblTotalEgresos" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="S/ 0.00" />
+                    <Label style="-fx-font-size: 10px; -fx-text-fill: -color-graphite-light;" text="Total pagado a proveedores o salidas de caja." />
+                </VBox>
+                
+                <!-- Tarjeta 3: Balance en Caja -->
+                <VBox spacing="8" styleClass="card" style="-fx-border-color: -color-primary; -fx-border-width: 0 0 4px 0;" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: -color-graphite-soft; -fx-font-weight: bold;" text="SALDO NETO (CAJA CHICA)" />
+                    <Label fx:id="lblSaldoCaja" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: -color-primary;" text="S/ 0.00" />
+                    <Label style="-fx-font-size: 10px; -fx-text-fill: -color-graphite-light;" text="Dinero neto disponible (Ingresos - Egresos)." />
+                </VBox>
+            </GridPane>
+            
+            <HBox spacing="20">
+                <!-- Columna Izquierda: Listado de Movimientos de Caja -->
+                <VBox spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="700.0">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label styleClass="section-title" text="HISTORIAL DE MOVIMIENTOS DE CAJA" HBox.hgrow="ALWAYS" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#onLimpiarFiltros" styleClass="btn-secondary" text="Limpiar Filtros" />
+                    </HBox>
+                    <Separator />
+                    
+                    <!-- Barra de Filtros -->
+                    <HBox spacing="15" alignment="CENTER_LEFT">
+                        <VBox spacing="4">
+                            <Label styleClass="form-label" style="-fx-font-size: 11px;" text="Tipo de Movimiento" />
+                            <ComboBox fx:id="comboFiltroTipo" prefWidth="150.0" promptText="Filtrar por Tipo" onAction="#onFiltrarMovimientos" />
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label styleClass="form-label" style="-fx-font-size: 11px;" text="Método de Pago" />
+                            <ComboBox fx:id="comboFiltroMetodo" prefWidth="180.0" promptText="Filtrar por Método" onAction="#onFiltrarMovimientos" />
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#onCargarMovimientos" styleClass="btn-secondary" text="Actualizar" />
+                    </HBox>
+                    
+                    <TableView fx:id="tableMovimientos" VBox.vgrow="ALWAYS" prefHeight="350.0">
+                        <columns>
+                            <TableColumn fx:id="colCajaId" text="ID" prefWidth="50.0" />
+                            <TableColumn fx:id="colCajaFecha" text="Fecha y Hora" prefWidth="130.0" />
+                            <TableColumn fx:id="colCajaTipo" text="Tipo" prefWidth="90.0" />
+                            <TableColumn fx:id="colCajaMetodo" text="Met. Pago" prefWidth="100.0" />
+                            <TableColumn fx:id="colCajaMonto" text="Monto" prefWidth="100.0" />
+                            <TableColumn fx:id="colCajaDescripcion" text="Descripción" prefWidth="210.0" />
+                        </columns>
+                    </TableView>
+                </VBox>
+                
+                <!-- Columna Derecha: Registro de Entrada/Salida Manual -->
+                <VBox spacing="15" styleClass="card" prefWidth="440.0">
+                    <Label styleClass="section-title" text="REGISTRAR MOVIMIENTO MANUAL" />
+                    <Label styleClass="section-subtitle" text="Utilice este panel para registrar ajustes de caja chica, gastos menores o ingresos adicionales." />
+                    <Separator />
+                    
+                    <GridPane hgap="10" vgap="12">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="35" />
+                            <ColumnConstraints percentWidth="65" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="25" />
+                            <RowConstraints minHeight="25" />
+                            <RowConstraints minHeight="25" />
+                            <RowConstraints minHeight="25" />
+                        </rowConstraints>
+                        
+                        <!-- Tipo de Movimiento -->
+                        <Label styleClass="form-label" text="Tipo Movimiento:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <ComboBox fx:id="comboManualTipo" prefWidth="300.0" promptText="Seleccione tipo..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        
+                        <!-- Método de Pago -->
+                        <Label styleClass="form-label" text="Método de Pago:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <ComboBox fx:id="comboManualMetodo" prefWidth="300.0" promptText="Seleccione método..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        
+                        <!-- Monto -->
+                        <Label styleClass="form-label" text="Monto (S/):" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="txtManualMonto" promptText="0.00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        
+                        <!-- Descripción -->
+                        <Label styleClass="form-label" text="Descripción:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <TextArea fx:id="txtManualDescripcion" prefHeight="80.0" promptText="Escriba el motivo detallado de la entrada o salida de dinero..." wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    </GridPane>
+                    
+                    <Separator style="-fx-padding: 10px 0;" />
+                    
+                    <HBox spacing="15" alignment="CENTER_RIGHT">
+                        <Button onAction="#onGuardarMovimientoManual" styleClass="btn-primary" text="Guardar Movimiento" prefHeight="40.0" prefWidth="200.0" />
+                    </HBox>
+                </VBox>
+            </HBox>
+            
+        </VBox>
+    </AnchorPane>
+</ScrollPane>

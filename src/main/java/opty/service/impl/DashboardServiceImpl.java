@@ -64,7 +64,7 @@ public class DashboardServiceImpl implements DashboardService {
     public BigDecimal getVentasDelDia(Integer tiendaId) {
         var inicio = LocalDate.now().atStartOfDay();
         var fin = LocalDate.now().atTime(LocalTime.MAX);
-        return ventaRepository.sumVentasByDateRange(inicio, fin);
+        return getVentasSumByDateRangeAndTienda(inicio, fin, tiendaId);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class DashboardServiceImpl implements DashboardService {
     public long getVentasCountDelDia(Integer tiendaId) {
         var inicio = LocalDate.now().atStartOfDay();
         var fin = LocalDate.now().atTime(LocalTime.MAX);
-        return ventaRepository.findByDateRange(inicio, fin).size();
+        return getVentasCountByDateRangeAndTienda(inicio, fin, tiendaId);
     }
 
     @Override
@@ -90,11 +90,11 @@ public class DashboardServiceImpl implements DashboardService {
     public List<Producto> getProductosBajoStock(Integer tiendaId) {
         if (tiendaId == null) {
             return productoRepository.findAll().stream()
-                    .filter(p -> p.getStockActual() <= p.getStockMinimo())
+                    .filter(p -> p.getActivo() && p.getStockActual() <= p.getStockMinimo())
                     .toList();
         }
-        return productoRepository.findDisponibles(tiendaId).stream()
-                .filter(p -> p.getStockActual() <= p.getStockMinimo())
+        return productoRepository.findByTiendaId(tiendaId).stream()
+                .filter(p -> p.getActivo() && p.getStockActual() <= p.getStockMinimo())
                 .toList();
     }
 
@@ -123,7 +123,7 @@ public class DashboardServiceImpl implements DashboardService {
         var now = LocalDate.now();
         var inicio = now.withDayOfMonth(1).atStartOfDay();
         var fin = now.atTime(LocalTime.MAX);
-        return ventaRepository.sumVentasByDateRange(inicio, fin);
+        return getVentasSumByDateRangeAndTienda(inicio, fin, tiendaId);
     }
 
     @Override
@@ -429,6 +429,46 @@ public class DashboardServiceImpl implements DashboardService {
             throw new RuntimeException("Error al consultar v_productos_disponibles", e);
         }
         return list;
+    }
+
+    private BigDecimal getVentasSumByDateRangeAndTienda(LocalDateTime desde, LocalDateTime hasta, Integer tiendaId) {
+        String sql = "SELECT COALESCE(SUM(monto_total), 0) FROM ventas_cabecera WHERE fecha_emision BETWEEN ? AND ? AND estado_financiero != 'ANULADO'";
+        if (tiendaId != null) {
+            sql += " AND tienda_id = ?";
+        }
+        try (var conn = DatabaseConfig.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(desde));
+            ps.setTimestamp(2, java.sql.Timestamp.valueOf(hasta));
+            if (tiendaId != null) {
+                ps.setInt(3, tiendaId);
+            }
+            try (var rs = ps.executeQuery()) {
+                return rs.next() ? rs.getBigDecimal(1) : BigDecimal.ZERO;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al sumar ventas en dashboard", e);
+        }
+    }
+
+    private long getVentasCountByDateRangeAndTienda(LocalDateTime desde, LocalDateTime hasta, Integer tiendaId) {
+        String sql = "SELECT COUNT(*) FROM ventas_cabecera WHERE fecha_emision BETWEEN ? AND ? AND estado_financiero != 'ANULADO'";
+        if (tiendaId != null) {
+            sql += " AND tienda_id = ?";
+        }
+        try (var conn = DatabaseConfig.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(desde));
+            ps.setTimestamp(2, java.sql.Timestamp.valueOf(hasta));
+            if (tiendaId != null) {
+                ps.setInt(3, tiendaId);
+            }
+            try (var rs = ps.executeQuery()) {
+                return rs.next() ? rs.getLong(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al contar ventas en dashboard", e);
+        }
     }
 }
 

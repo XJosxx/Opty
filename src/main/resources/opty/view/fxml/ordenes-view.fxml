@@ -21,10 +21,12 @@
                 
                 <TableView fx:id="tableOrdenes" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colOrdId" text="ID" prefWidth="60.0" />
-                        <TableColumn fx:id="colOrdTipo" text="Trabajo" prefWidth="130.0" />
-                        <TableColumn fx:id="colOrdPrometida" text="F. Prometida" prefWidth="130.0" />
-                        <TableColumn fx:id="colOrdEstado" text="Estado" prefWidth="120.0" />
+                        <TableColumn fx:id="colOrdId" text="ID" prefWidth="40.0" />
+                        <TableColumn fx:id="colOrdTicket" text="Ticket" prefWidth="95.0" />
+                        <TableColumn fx:id="colOrdPaciente" text="Paciente" prefWidth="125.0" />
+                        <TableColumn fx:id="colOrdTipo" text="Trabajo" prefWidth="105.0" />
+                        <TableColumn fx:id="colOrdPrometida" text="F. Prometida" prefWidth="90.0" />
+                        <TableColumn fx:id="colOrdEstado" text="Estado" prefWidth="85.0" />
                     </columns>
                 </TableView>
             </VBox>
@@ -52,6 +54,8 @@
                         <rowConstraints>
                             <RowConstraints minHeight="25" />
                             <RowConstraints minHeight="25" />
+                            <RowConstraints minHeight="25" />
+                            <RowConstraints minHeight="25" />
                         </rowConstraints>
                         
                         <Label styleClass="form-label" text="Fecha Creación:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
@@ -59,6 +63,12 @@
                         
                         <Label styleClass="form-label" text="Fecha Entrega Prometida:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <Label fx:id="lblOtFecPrometida" styleClass="form-label" style="-fx-font-weight: normal;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label styleClass="form-label" text="Ticket de Venta:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="lblOtTicketVenta" styleClass="form-label" style="-fx-font-weight: bold; -fx-text-fill: -color-primary;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label styleClass="form-label" text="Paciente / Cliente:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label fx:id="lblOtPaciente" styleClass="form-label" style="-fx-font-weight: normal;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                     </GridPane>
                     
                     <Separator />

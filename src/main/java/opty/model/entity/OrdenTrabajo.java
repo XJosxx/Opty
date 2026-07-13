@@ -30,6 +30,10 @@ public class OrdenTrabajo {
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaPrometida;
 
+    // Campos virtuales/relacionales para visualización en la interfaz
+    private String numeroTicket;
+    private String nombrePaciente;
+
     public void setVentaId(Integer ventaId) {
         if (ventaId == null) throw new IllegalArgumentException("La venta asociada no puede ser nula");
         this.ventaId = ventaId;

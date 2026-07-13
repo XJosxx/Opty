@@ -17,11 +17,11 @@ import java.util.Optional;
 
 public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements OrdenTrabajoRepository {
 
-    private static final String SELECT_COLUMNS = "SELECT id, venta_id, historial_clinico_id, estado_fisico, tipo_trabajo, usa_montura_cliente, detalles_montura_cliente, usa_luna_cliente, detalles_luna_cliente, fecha_creacion, fecha_prometida FROM ordenes_trabajo";
+    private static final String SELECT_COLUMNS = "SELECT ot.id, ot.venta_id, ot.historial_clinico_id, ot.estado_fisico, ot.tipo_trabajo, ot.usa_montura_cliente, ot.detalles_montura_cliente, ot.usa_luna_cliente, ot.detalles_luna_cliente, ot.fecha_creacion, ot.fecha_prometida, vc.numero_ticket AS numero_ticket, CONCAT(p.nombre, ' ', p.apellido_p) AS nombre_paciente FROM ordenes_trabajo ot LEFT JOIN ventas_cabecera vc ON ot.venta_id = vc.id LEFT JOIN pacientes p ON vc.paciente_id = p.id";
 
     @Override
     public Optional<OrdenTrabajo> findById(Integer id) {
-        var sql = SELECT_COLUMNS + " WHERE id = ?";
+        var sql = SELECT_COLUMNS + " WHERE ot.id = ?";
         try (var conn = getConnection(); var ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (var rs = ps.executeQuery()) {
@@ -36,7 +36,7 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
     @Override
     public List<OrdenTrabajo> findAll() {
         var list = new ArrayList<OrdenTrabajo>();
-        try (var conn = getConnection(); var ps = conn.prepareStatement(SELECT_COLUMNS + " ORDER BY fecha_creacion DESC"); var rs = ps.executeQuery()) {
+        try (var conn = getConnection(); var ps = conn.prepareStatement(SELECT_COLUMNS + " ORDER BY ot.fecha_creacion DESC"); var rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
             throw new RuntimeException("Error al listar Ã³rdenes de trabajo", e);
@@ -123,11 +123,11 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
     @Override
     public List<OrdenTrabajo> findPendientes() {
         var list = new ArrayList<OrdenTrabajo>();
-        var sql = "SELECT ot.id, ot.venta_id, ot.historial_clinico_id, ot.estado_fisico, ot.tipo_trabajo, ot.usa_montura_cliente, ot.detalles_montura_cliente, ot.usa_luna_cliente, ot.detalles_luna_cliente, ot.fecha_creacion, ot.fecha_prometida FROM ordenes_trabajo ot WHERE ot.estado_fisico != 'ENTREGADO' ORDER BY ot.fecha_prometida ASC";
+        var sql = "SELECT ot.id, ot.venta_id, ot.historial_clinico_id, ot.estado_fisico, ot.tipo_trabajo, ot.usa_montura_cliente, ot.detalles_montura_cliente, ot.usa_luna_cliente, ot.detalles_luna_cliente, ot.fecha_creacion, ot.fecha_prometida, vc.numero_ticket AS numero_ticket, CONCAT(p.nombre, ' ', p.apellido_p) AS nombre_paciente FROM ordenes_trabajo ot LEFT JOIN ventas_cabecera vc ON ot.venta_id = vc.id LEFT JOIN pacientes p ON vc.paciente_id = p.id WHERE ot.estado_fisico != 'ENTREGADO' ORDER BY ot.fecha_prometida ASC";
         try (var conn = getConnection(); var ps = conn.prepareStatement(sql); var rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar Ã³rdenes pendientes", e);
+            throw new RuntimeException("Error al buscar órdenes pendientes", e);
         }
         return list;
     }
@@ -135,13 +135,13 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
     @Override
     public List<OrdenTrabajo> findByVentaId(Integer ventaId) {
         var list = new ArrayList<OrdenTrabajo>();
-        try (var conn = getConnection(); var ps = conn.prepareStatement(SELECT_COLUMNS + " WHERE venta_id = ?")) {
+        try (var conn = getConnection(); var ps = conn.prepareStatement(SELECT_COLUMNS + " WHERE ot.venta_id = ?")) {
             ps.setInt(1, ventaId);
             try (var rs = ps.executeQuery()) {
                 while (rs.next()) list.add(map(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar Ã³rdenes por venta", e);
+            throw new RuntimeException("Error al buscar órdenes por venta", e);
         }
         return list;
     }
@@ -149,13 +149,13 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
     @Override
     public List<OrdenTrabajo> findByEstado(EstadoFisicoOT estado) {
         var list = new ArrayList<OrdenTrabajo>();
-        try (var conn = getConnection(); var ps = conn.prepareStatement(SELECT_COLUMNS + " WHERE estado_fisico = ?")) {
+        try (var conn = getConnection(); var ps = conn.prepareStatement(SELECT_COLUMNS + " WHERE ot.estado_fisico = ?")) {
             ps.setString(1, estado.name());
             try (var rs = ps.executeQuery()) {
                 while (rs.next()) list.add(map(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar Ã³rdenes por estado", e);
+            throw new RuntimeException("Error al buscar órdenes por estado", e);
         }
         return list;
     }
@@ -163,7 +163,7 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
     @Override
     public List<OrdenTrabajo> findVencidas() {
         var list = new ArrayList<OrdenTrabajo>();
-        var sql = SELECT_COLUMNS + " WHERE fecha_prometida < NOW() AND estado_fisico != 'ENTREGADO' ORDER BY fecha_prometida ASC";
+        var sql = SELECT_COLUMNS + " WHERE ot.fecha_prometida < NOW() AND ot.estado_fisico != 'ENTREGADO' ORDER BY ot.fecha_prometida ASC";
         try (var conn = getConnection(); var ps = conn.prepareStatement(sql); var rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
@@ -199,6 +199,18 @@ public class OrdenTrabajoRepositoryImpl extends BaseJdbcRepository implements Or
         if (ts != null) o.setFechaCreacion(ts.toLocalDateTime());
         ts = rs.getTimestamp("fecha_prometida");
         if (ts != null) o.setFechaPrometida(ts.toLocalDateTime());
+        
+        try {
+            o.setNumeroTicket(rs.getString("numero_ticket"));
+        } catch (SQLException e) {
+            // Columna no seleccionada en este query específico, omitir
+        }
+        try {
+            o.setNombrePaciente(rs.getString("nombre_paciente"));
+        } catch (SQLException e) {
+            // Columna no seleccionada en este query específico, omitir
+        }
+        
         return o;
     }
 }

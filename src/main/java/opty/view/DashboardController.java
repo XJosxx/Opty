@@ -68,7 +68,7 @@ public class DashboardController implements ModuleController {
         var bajoStock = dashboardService.getProductosBajoStock(tiendaId);
         lblBajoStock.setText(String.valueOf(bajoStock.size()));
 
-        var pendientes = dashboardService.getOrdenesPendientes();
+        var pendientes = dashboardService.getOrdenesPendientesView(tiendaId);
         lblOrdenesPendientes.setText(String.valueOf(pendientes.size()));
 
         // Cargar gráficos e indicadores interactivos (visualización de vistas de 02_logica.sql)

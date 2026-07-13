@@ -5,43 +5,147 @@
 <?import javafx.geometry.Insets?>
 
 <ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.VentasController">
-    <AnchorPane styleClass="dashboard-root">
-        <HBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
-            
-            <!-- Columna Izquierda: Datos de la Venta e Inputs -->
-            <VBox spacing="20" HBox.hgrow="ALWAYS" prefWidth="500.0">
-                <!-- Card del Cliente / Paciente -->
-                <VBox spacing="15" styleClass="card">
-                    <Label styleClass="section-title" text="CLIENTE / PACIENTE" />
-                    <Separator />
-                    
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <TextField fx:id="txtClienteDoc" HBox.hgrow="ALWAYS" promptText="Ingrese DNI o RUC del cliente..." />
-                        <Button onAction="#onBuscarCliente" styleClass="btn-secondary" text="Cargar" />
-                    </HBox>
-                    
-                    <GridPane hgap="15" vgap="10">
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="30" />
-                            <ColumnConstraints percentWidth="70" />
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints minHeight="25" />
-                        </rowConstraints>
-                        <Label styleClass="form-label" text="Nombre Cliente:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <Label fx:id="lblClienteNombre" styleClass="form-label" style="-fx-font-weight: normal;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                    </GridPane>
-                </VBox>
-                
-                <!-- TabPane de Selección de Producto / Personalización -->
-                <TabPane styleClass="card" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" prefHeight="400.0">
-                    <tabs>
-                        <Tab text="Catálogo General">
-                            <VBox spacing="15" style="-fx-padding: 15px 5px 5px 5px;">
-                                <VBox spacing="6">
-                                    <Label styleClass="form-label" text="Seleccione Producto" />
-                                    <ComboBox fx:id="comboProductos" prefWidth="500.0" promptText="Seleccione un producto del catálogo..." />
-                                </VBox>
+    <TabPane styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+            <Tab text="Nueva Venta / Despacho">
+                <AnchorPane styleClass="dashboard-root">
+                    <HBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+                        
+                        <!-- Columna Izquierda: Datos de la Venta e Inputs -->
+                        <VBox spacing="20" HBox.hgrow="ALWAYS" prefWidth="500.0">
+                            <!-- Card del Cliente / Paciente -->
+                            <VBox spacing="15" styleClass="card">
+                                <Label styleClass="section-title" text="CLIENTE / PACIENTE" />
+                                <Separator />
+                                
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <TextField fx:id="txtClienteDoc" HBox.hgrow="ALWAYS" promptText="Ingrese DNI o RUC del cliente..." />
+                                    <Button onAction="#onBuscarCliente" styleClass="btn-secondary" text="Cargar" />
+                                </HBox>
+                                
+                                <GridPane hgap="15" vgap="10">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="30" />
+                                        <ColumnConstraints percentWidth="70" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="25" />
+                                    </rowConstraints>
+                                    <Label styleClass="form-label" text="Nombre Cliente:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <Label fx:id="lblClienteNombre" styleClass="form-label" style="-fx-font-weight: normal;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                </GridPane>
+                            </VBox>
+                            
+                            <!-- TabPane de Selección de Producto / Personalización -->
+                            <TabPane styleClass="card" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" prefHeight="400.0">
+                                <tabs>
+                                    <Tab text="Catálogo General">
+                                        <VBox spacing="15" style="-fx-padding: 15px 5px 5px 5px;">
+                                            <VBox spacing="6">
+                                                <Label styleClass="form-label" text="Seleccione Producto" />
+                                                <ComboBox fx:id="comboProductos" prefWidth="500.0" promptText="Seleccione un producto del catálogo..." />
+                                            </VBox>
+                                            <GridPane hgap="15" vgap="10">
+                                                <columnConstraints>
+                                                    <ColumnConstraints percentWidth="50" />
+                                                    <ColumnConstraints percentWidth="50" />
+                                                </columnConstraints>
+                                                <rowConstraints>
+                                                    <RowConstraints />
+                                                    <RowConstraints />
+                                                </rowConstraints>
+                                                <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                                    <Label styleClass="form-label" text="Stock Disponible" />
+                                                    <Label fx:id="lblStockProd" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="-" />
+                                                </VBox>
+                                                <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                    <Label styleClass="form-label" text="Precio Unitario" />
+                                                    <Label fx:id="lblPrecioProd" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="-" />
+                                                </VBox>
+                                                <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" style="-fx-padding: 10px 0 0 0;">
+                                                    <Label styleClass="form-label" text="Cantidad a Vender" />
+                                                    <HBox spacing="10">
+                                                        <Spinner fx:id="spinCantidad" prefWidth="120.0" />
+                                                        <Button onAction="#onAgregarCarrito" styleClass="btn-primary" text="Agregar" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                                                    </HBox>
+                                                </VBox>
+                                            </GridPane>
+                                        </VBox>
+                                    </Tab>
+                                    <Tab text="Lunas / Trabajo Personalizado">
+                                        <ScrollPane fitToWidth="true" styleClass="scroll-pane" style="-fx-background-color: transparent;">
+                                            <VBox spacing="10" style="-fx-padding: 15px 5px 5px 5px;">
+                                                <GridPane hgap="10" vgap="8">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="50" />
+                                                        <ColumnConstraints percentWidth="50" />
+                                                    </columnConstraints>
+                                                    <rowConstraints>
+                                                        <RowConstraints />
+                                                        <RowConstraints />
+                                                        <RowConstraints />
+                                                        <RowConstraints />
+                                                        <RowConstraints />
+                                                    </rowConstraints>
+                                                    
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                                        <Label styleClass="form-label" text="Tipo de Trabajo" style="-fx-font-size: 11px;" />
+                                                        <ComboBox fx:id="comboCustomTrabajo" maxWidth="1.7976931348623157E308" promptText="Trabajo..." />
+                                                    </VBox>
+                                                    
+                                                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                        <Label styleClass="form-label" text="Material / Cristal" style="-fx-font-size: 11px;" />
+                                                        <ComboBox fx:id="comboCustomMaterial" maxWidth="1.7976931348623157E308" promptText="Material..." />
+                                                    </VBox>
+                                                    
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                                        <Label styleClass="form-label" text="Lado / Ojo" style="-fx-font-size: 11px;" />
+                                                        <ComboBox fx:id="comboCustomLado" maxWidth="1.7976931348623157E308" promptText="Lado..." />
+                                                    </VBox>
+                                                    
+                                                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                        <Label styleClass="form-label" text="Precio Unit. (S/)" style="-fx-font-size: 11px;" />
+                                                        <TextField fx:id="txtCustomPrecio" promptText="0.00" />
+                                                    </VBox>
+                                                    
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                                                        <Label styleClass="form-label" text="Detalles / Modelo Montura" style="-fx-font-size: 11px;" />
+                                                        <TextField fx:id="txtCustomDetalles" promptText="Ej: Montura Oakley color negro..." />
+                                                    </VBox>
+                                                </GridPane>
+                                                
+                                                <HBox spacing="15" style="-fx-padding: 3px 0;">
+                                                    <CheckBox fx:id="chkCustomMonturaCliente" text="Montura Cliente" style="-fx-font-size: 11px;" />
+                                                    <CheckBox fx:id="chkCustomLunaCliente" text="Luna Cliente" style="-fx-font-size: 11px;" />
+                                                </HBox>
+                                                
+                                                <Button onAction="#onAgregarCustomCarrito" styleClass="btn-primary" text="Agregar Personalizado" maxWidth="Infinity" />
+                                            </VBox>
+                                        </ScrollPane>
+                                    </Tab>
+                                </tabs>
+                            </TabPane>
+                        </VBox>
+                        
+                        <!-- Columna Derecha: Carrito de Compras y Totales -->
+                        <VBox spacing="20" HBox.hgrow="ALWAYS" prefWidth="660.0">
+                            <VBox spacing="15" styleClass="card" VBox.vgrow="ALWAYS">
+                                <Label styleClass="section-title" text="CARRITO DE COMPRAS" />
+                                <Separator />
+                                
+                                <TableView fx:id="tableCarrito" VBox.vgrow="ALWAYS" prefHeight="250.0">
+                                    <columns>
+                                        <TableColumn fx:id="colCartProducto" text="Producto" prefWidth="250.0" />
+                                        <TableColumn fx:id="colCartPrecio" text="Precio Unit." prefWidth="100.0" />
+                                        <TableColumn fx:id="colCartCantidad" text="Cant." prefWidth="80.0" />
+                                        <TableColumn fx:id="colCartSubtotal" text="Subtotal" prefWidth="100.0" />
+                                        <TableColumn fx:id="colCartAcciones" text="Acción" prefWidth="80.0" />
+                                    </columns>
+                                </TableView>
+                                
+                                <Separator />
+                                
+                                <!-- Formas de Pago y Comprobante -->
                                 <GridPane hgap="15" vgap="10">
                                     <columnConstraints>
                                         <ColumnConstraints percentWidth="50" />
@@ -49,154 +153,137 @@
                                     </columnConstraints>
                                     <rowConstraints>
                                         <RowConstraints />
-                                        <RowConstraints />
                                     </rowConstraints>
+                                    
                                     <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                        <Label styleClass="form-label" text="Stock Disponible" />
-                                        <Label fx:id="lblStockProd" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="-" />
+                                        <Label styleClass="form-label" text="Método de Pago" />
+                                        <ComboBox fx:id="comboMetodoPago" prefWidth="300.0" />
                                     </VBox>
                                     <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                        <Label styleClass="form-label" text="Precio Unitario" />
-                                        <Label fx:id="lblPrecioProd" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="-" />
-                                    </VBox>
-                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" style="-fx-padding: 10px 0 0 0;">
-                                        <Label styleClass="form-label" text="Cantidad a Vender" />
-                                        <HBox spacing="10">
-                                            <Spinner fx:id="spinCantidad" prefWidth="120.0" />
-                                            <Button onAction="#onAgregarCarrito" styleClass="btn-primary" text="Agregar" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
-                                        </HBox>
+                                        <Label styleClass="form-label" text="Tipo de Comprobante" />
+                                        <ComboBox fx:id="comboComprobante" prefWidth="300.0" />
                                     </VBox>
                                 </GridPane>
-                            </VBox>
-                        </Tab>
-                        <Tab text="Lunas / Trabajo Personalizado">
-                            <ScrollPane fitToWidth="true" styleClass="scroll-pane" style="-fx-background-color: transparent;">
-                                <VBox spacing="10" style="-fx-padding: 15px 5px 5px 5px;">
-                                    <GridPane hgap="10" vgap="8">
+                                
+                                <!-- Resumen de Costos y Botón Final -->
+                                <HBox spacing="20" alignment="BOTTOM_RIGHT" style="-fx-padding: 15px 0 0 0;">
+                                    <GridPane hgap="20" vgap="5">
                                         <columnConstraints>
-                                            <ColumnConstraints percentWidth="50" />
-                                            <ColumnConstraints percentWidth="50" />
+                                            <ColumnConstraints halignment="RIGHT" />
+                                            <ColumnConstraints halignment="RIGHT" prefWidth="100.0" />
                                         </columnConstraints>
                                         <rowConstraints>
                                             <RowConstraints />
                                             <RowConstraints />
                                             <RowConstraints />
                                             <RowConstraints />
+                                            <RowConstraints />
                                         </rowConstraints>
                                         
-                                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                            <Label styleClass="form-label" text="Tipo de Trabajo" style="-fx-font-size: 11px;" />
-                                            <ComboBox fx:id="comboCustomTrabajo" maxWidth="1.7976931348623157E308" promptText="Trabajo..." />
-                                        </VBox>
+                                        <Label style="-fx-font-size: 13px;" text="Subtotal:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="lblResSubtotal" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                         
-                                        <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                            <Label styleClass="form-label" text="Material / Cristal" style="-fx-font-size: 11px;" />
-                                            <ComboBox fx:id="comboCustomMaterial" maxWidth="1.7976931348623157E308" promptText="Material..." />
-                                        </VBox>
+                                        <Label style="-fx-font-size: 13px;" text="IGV (18%):" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="lblResIgv" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                         
-                                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                            <Label styleClass="form-label" text="Lado / Ojo" style="-fx-font-size: 11px;" />
-                                            <ComboBox fx:id="comboCustomLado" maxWidth="1.7976931348623157E308" promptText="Lado..." />
-                                        </VBox>
-                                        
-                                        <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                            <Label styleClass="form-label" text="Precio Unit. (S/)" style="-fx-font-size: 11px;" />
-                                            <TextField fx:id="txtCustomPrecio" promptText="0.00" />
-                                        </VBox>
-                                        
-                                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
-                                            <Label styleClass="form-label" text="Detalles / Modelo Montura" style="-fx-font-size: 11px;" />
-                                            <TextField fx:id="txtCustomDetalles" promptText="Ej: Montura Oakley color negro..." />
-                                        </VBox>
+                                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="TOTAL:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Label fx:id="lblResTotal" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -color-graphite-dark;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            
+                                        <Label style="-fx-font-size: 12px; -fx-text-fill: -color-info-text; -fx-font-weight: bold;" text="A Cuenta (Abono):" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TextField fx:id="txtMontoCuenta" prefWidth="100.0" promptText="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" style="-fx-font-size: 11px; -fx-padding: 3px;" />
+                            
+                                        <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="Saldo Pendiente:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <Label fx:id="lblSaldoPendiente" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                     </GridPane>
                                     
-                                    <HBox spacing="15" style="-fx-padding: 3px 0;">
-                                        <CheckBox fx:id="chkCustomMonturaCliente" text="Montura Cliente" style="-fx-font-size: 11px;" />
-                                        <CheckBox fx:id="chkCustomLunaCliente" text="Luna Cliente" style="-fx-font-size: 11px;" />
-                                    </HBox>
-                                    
-                                    <Button onAction="#onAgregarCustomCarrito" styleClass="btn-primary" text="Agregar Personalizado" maxWidth="Infinity" />
-                                </VBox>
-                            </ScrollPane>
-                        </Tab>
-                    </tabs>
-                </TabPane>
-            </VBox>
-            
-            <!-- Columna Derecha: Carrito de Compras y Totales -->
-            <VBox spacing="20" HBox.hgrow="ALWAYS" prefWidth="660.0">
-                <VBox spacing="15" styleClass="card" VBox.vgrow="ALWAYS">
-                    <Label styleClass="section-title" text="CARRITO DE COMPRAS" />
-                    <Separator />
-                    
-                    <TableView fx:id="tableCarrito" VBox.vgrow="ALWAYS" prefHeight="250.0">
-                        <columns>
-                            <TableColumn fx:id="colCartProducto" text="Producto" prefWidth="250.0" />
-                            <TableColumn fx:id="colCartPrecio" text="Precio Unit." prefWidth="100.0" />
-                            <TableColumn fx:id="colCartCantidad" text="Cant." prefWidth="80.0" />
-                            <TableColumn fx:id="colCartSubtotal" text="Subtotal" prefWidth="100.0" />
-                            <TableColumn fx:id="colCartAcciones" text="Acción" prefWidth="80.0" />
-                        </columns>
-                    </TableView>
-                    
-                    <Separator />
-                    
-                    <!-- Formas de Pago y Comprobante -->
-                    <GridPane hgap="15" vgap="10">
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="50" />
-                            <ColumnConstraints percentWidth="50" />
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints />
-                        </rowConstraints>
-                        
-                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                            <Label styleClass="form-label" text="Método de Pago" />
-                            <ComboBox fx:id="comboMetodoPago" prefWidth="300.0" />
+                                    <Button onAction="#onProcesarVenta" styleClass="btn-primary" text="Procesar Venta" prefHeight="45.0" prefWidth="180.0" />
+                                </HBox>
+                            </VBox>
                         </VBox>
-                        <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <Label styleClass="form-label" text="Tipo de Comprobante" />
-                            <ComboBox fx:id="comboComprobante" prefWidth="300.0" />
-                        </VBox>
-                    </GridPane>
-                    
-                    <!-- Resumen de Costos y Botón Final -->
-                    <HBox spacing="20" alignment="BOTTOM_RIGHT" style="-fx-padding: 15px 0 0 0;">
-                        <GridPane hgap="20" vgap="5">
-                            <columnConstraints>
-                                <ColumnConstraints halignment="RIGHT" />
-                                <ColumnConstraints halignment="RIGHT" prefWidth="100.0" />
-                            </columnConstraints>
-                            <rowConstraints>
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                            </rowConstraints>
-                            
-                            <Label style="-fx-font-size: 13px;" text="Subtotal:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                            <Label fx:id="lblResSubtotal" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                            
-                            <Label style="-fx-font-size: 13px;" text="IGV (18%):" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                            <Label fx:id="lblResIgv" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                            
-                            <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="TOTAL:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                            <Label fx:id="lblResTotal" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -color-graphite-dark;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                            <Label style="-fx-font-size: 12px; -fx-text-fill: -color-info-text; -fx-font-weight: bold;" text="A Cuenta (Abono):" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                            <TextField fx:id="txtMontoCuenta" prefWidth="100.0" promptText="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" style="-fx-font-size: 11px; -fx-padding: 3px;" />
-
-                            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="Saldo Pendiente:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                            <Label fx:id="lblSaldoPendiente" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        </GridPane>
                         
-                        <Button onAction="#onProcesarVenta" styleClass="btn-primary" text="Procesar Venta" prefHeight="45.0" prefWidth="180.0" />
                     </HBox>
-                </VBox>
-            </VBox>
+                </AnchorPane>
+            </Tab>
             
-        </HBox>
-    </AnchorPane>
+            <Tab text="Historial de Ventas y Cuentas" onSelectionChanged="#onCargarHistorial">
+                <AnchorPane styleClass="dashboard-root">
+                    <HBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+                        
+                        <!-- Columna Izquierda: Listado de Comprobantes de Venta -->
+                        <VBox spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="550.0">
+                            <Label styleClass="section-title" text="COMPROBANTES DE VENTA EMITIDOS" />
+                            <Separator />
+                            <TableView fx:id="tableHistorial" VBox.vgrow="ALWAYS" prefHeight="400.0">
+                                <columns>
+                                    <TableColumn fx:id="colHistId" text="ID" prefWidth="50.0" />
+                                    <TableColumn fx:id="colHistTicket" text="Nro. Ticket" prefWidth="120.0" />
+                                    <TableColumn fx:id="colHistPaciente" text="Paciente / Cliente" prefWidth="150.0" />
+                                    <TableColumn fx:id="colHistFecha" text="Fecha" prefWidth="110.0" />
+                                    <TableColumn fx:id="colHistEstadoFin" text="Est. Financiero" prefWidth="95.0" />
+                                    <TableColumn fx:id="colHistTotal" text="Total" prefWidth="85.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+                        
+                        <!-- Columna Derecha: Detalle de Venta y Cobro de Saldo -->
+                        <VBox fx:id="paneDetalleHist" spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="540.0" visible="false">
+                            <HBox alignment="CENTER_LEFT">
+                                <VBox HBox.hgrow="ALWAYS">
+                                    <Label fx:id="lblHistDetTitle" styleClass="section-title" text="DETALLE DE VENTA #-" />
+                                    <Label fx:id="lblHistDetPaciente" styleClass="section-subtitle" text="Cliente: -" />
+                                </VBox>
+                                <Label fx:id="lblHistDetEstadoBadge" text="PENDIENTE" />
+                            </HBox>
+                            <Separator />
+                            
+                            <TableView fx:id="tableDetalleHist" prefHeight="180.0" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colDetProducto" text="Producto / Servicio" prefWidth="250.0" />
+                                    <TableColumn fx:id="colDetPrecio" text="Precio Unit." prefWidth="90.0" />
+                                    <TableColumn fx:id="colDetCantidad" text="Cant." prefWidth="60.0" />
+                                    <TableColumn fx:id="colDetSubtotal" text="Subtotal" prefWidth="90.0" />
+                                </columns>
+                            </TableView>
+                            
+                            <Separator />
+                            
+                            <GridPane hgap="10" vgap="8">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="45" />
+                                    <ColumnConstraints percentWidth="55" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints minHeight="25" />
+                                    <RowConstraints minHeight="25" />
+                                    <RowConstraints minHeight="25" />
+                                    <RowConstraints minHeight="25" />
+                                    <RowConstraints minHeight="25" />
+                                </rowConstraints>
+                                
+                                <Label styleClass="form-label" text="Total de la Venta:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <Label fx:id="lblHistTotalVenta" style="-fx-font-weight: bold;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                
+                                <Label styleClass="form-label" text="Abonado a la Fecha:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <Label fx:id="lblHistAbonado" style="-fx-font-weight: bold; -fx-text-fill: -color-success-text;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                
+                                <Label styleClass="form-label" text="Saldo Pendiente de Cobro:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <Label fx:id="lblHistSaldo" style="-fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                <Label styleClass="form-label" text="Tipo de Entrega:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <Label fx:id="lblHistTipoEntrega" style="-fx-font-weight: bold;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                <Label styleClass="form-label" text="Estado de Entrega:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                <Label fx:id="lblHistEstadoEntrega" style="-fx-font-weight: bold;" text="-" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                            </GridPane>
+                            
+                            <Separator />
+                            
+                            <HBox fx:id="boxAccionesVenta" spacing="10" alignment="CENTER_RIGHT" />
+                        </VBox>
+                        
+                    </HBox>
+                </AnchorPane>
+            </Tab>
+        </tabs>
+    </TabPane>
 </ScrollPane>

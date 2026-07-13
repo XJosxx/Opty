@@ -24,6 +24,8 @@ public class OrdenesController implements ModuleController {
     @FXML private ComboBox<String> comboFiltroEstado;
     @FXML private TableView<OrdenTrabajo> tableOrdenes;
     @FXML private TableColumn<OrdenTrabajo, String> colOrdId;
+    @FXML private TableColumn<OrdenTrabajo, String> colOrdTicket;
+    @FXML private TableColumn<OrdenTrabajo, String> colOrdPaciente;
     @FXML private TableColumn<OrdenTrabajo, String> colOrdTipo;
     @FXML private TableColumn<OrdenTrabajo, String> colOrdPrometida;
     @FXML private TableColumn<OrdenTrabajo, String> colOrdEstado;
@@ -35,6 +37,8 @@ public class OrdenesController implements ModuleController {
     @FXML private Label lblOtEstadoBadge;
     @FXML private Label lblOtFecCreacion;
     @FXML private Label lblOtFecPrometida;
+    @FXML private Label lblOtTicketVenta;
+    @FXML private Label lblOtPaciente;
 
     // --- Graduación ---
     @FXML private Label lblOdEsfera;
@@ -87,6 +91,12 @@ public class OrdenesController implements ModuleController {
 
         // Enlazar columnas
         colOrdId.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getId().toString()));
+        colOrdTicket.setCellValueFactory(cell -> new SimpleStringProperty(
+                cell.getValue().getNumeroTicket() != null ? cell.getValue().getNumeroTicket() : "-"
+        ));
+        colOrdPaciente.setCellValueFactory(cell -> new SimpleStringProperty(
+                cell.getValue().getNombrePaciente() != null ? cell.getValue().getNombrePaciente() : "-"
+        ));
         colOrdTipo.setCellValueFactory(cell -> new SimpleStringProperty(
                 cell.getValue().getTipoTrabajo() != null ? cell.getValue().getTipoTrabajo().name().replace("_", " ") : "-"
         ));
@@ -129,6 +139,8 @@ public class OrdenesController implements ModuleController {
         lblOtTipo.setText(ot.getTipoTrabajo() != null ? ot.getTipoTrabajo().name().replace("_", " ") : "-");
         lblOtFecCreacion.setText(ot.getFechaCreacion() != null ? ot.getFechaCreacion().toString().substring(0, 16).replace("T", " ") : "-");
         lblOtFecPrometida.setText(ot.getFechaPrometida() != null ? ot.getFechaPrometida().toString().substring(0, 10) : "-");
+        lblOtTicketVenta.setText(ot.getNumeroTicket() != null ? ot.getNumeroTicket() : "-");
+        lblOtPaciente.setText(ot.getNombrePaciente() != null ? ot.getNombrePaciente() : "-");
 
         // Estado Badge
         var est = ot.getEstadoFisico();
