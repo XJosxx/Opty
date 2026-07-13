@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import opty.model.entity.ConfigTienda;
 import opty.model.entity.Usuario;
 import opty.model.enums.Rol;
+import opty.model.enums.TipoDocumento;
 import opty.service.ConfigTiendaService;
 import opty.service.UsuarioService;
 import opty.service.impl.ConfigTiendaServiceImpl;
@@ -29,6 +30,7 @@ public class UsuariosController implements ModuleController {
     @FXML private TextField txtNombre;
     @FXML private TextField txtApellidoP;
     @FXML private TextField txtApellidoM;
+    @FXML private ComboBox<TipoDocumento> comboTipoDoc;
     @FXML private TextField txtDocumento;
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
@@ -84,8 +86,9 @@ public class UsuariosController implements ModuleController {
             }
         });
 
-        // Poblar Roles
+        // Poblar Roles y Tipo de Documento
         comboRol.setItems(FXCollections.observableArrayList(Rol.values()));
+        comboTipoDoc.setItems(FXCollections.observableArrayList(TipoDocumento.values()));
     }
 
     private void onCargarDatos() {
@@ -106,6 +109,7 @@ public class UsuariosController implements ModuleController {
         txtNombre.clear();
         txtApellidoP.clear();
         txtApellidoM.clear();
+        if (comboTipoDoc != null) comboTipoDoc.getSelectionModel().select(TipoDocumento.DNI);
         txtDocumento.clear();
         txtUsername.clear();
         txtPassword.clear();
@@ -124,6 +128,7 @@ public class UsuariosController implements ModuleController {
         txtNombre.setText(u.getNombre());
         txtApellidoP.setText(u.getApellidoP());
         txtApellidoM.setText(u.getApellidoM());
+        if (comboTipoDoc != null) comboTipoDoc.setValue(u.getTipoDocumento());
         txtDocumento.setText(u.getNumDocumento());
         txtUsername.setText(u.getUsername());
         txtPassword.clear();
@@ -147,6 +152,7 @@ public class UsuariosController implements ModuleController {
         var nombre = txtNombre.getText();
         var apellidoP = txtApellidoP.getText();
         var apellidoM = txtApellidoM.getText();
+        var tipoDoc = comboTipoDoc.getValue();
         var doc = txtDocumento.getText();
         var username = txtUsername.getText();
         var rol = comboRol.getValue();
@@ -156,10 +162,11 @@ public class UsuariosController implements ModuleController {
         if (nombre == null || nombre.isBlank() ||
             apellidoP == null || apellidoP.isBlank() ||
             apellidoM == null || apellidoM.isBlank() ||
+            tipoDoc == null ||
             doc == null || doc.isBlank() ||
             username == null || username.isBlank() ||
             rol == null || tienda == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Campos Vacíos", "Todos los campos (a excepción de contraseña en edición) son requeridos.");
+            mostrarAlerta(Alert.AlertType.WARNING, "Campos Vacíos", "Todos los campos (incluyendo el Tipo de Documento) son requeridos.");
             return;
         }
 
@@ -183,6 +190,7 @@ public class UsuariosController implements ModuleController {
                 u.setNombre(nombre);
                 u.setApellidoP(apellidoP);
                 u.setApellidoM(apellidoM);
+                u.setTipoDocumento(tipoDoc);
                 u.setNumDocumento(doc);
                 u.setUsername(username.trim().toLowerCase());
                 u.setPassword(pass);
@@ -197,6 +205,7 @@ public class UsuariosController implements ModuleController {
                 usuarioEditando.setNombre(nombre);
                 usuarioEditando.setApellidoP(apellidoP);
                 usuarioEditando.setApellidoM(apellidoM);
+                usuarioEditando.setTipoDocumento(tipoDoc);
                 usuarioEditando.setNumDocumento(doc);
                 usuarioEditando.setUsername(username.trim().toLowerCase());
                 usuarioEditando.setRol(rol);

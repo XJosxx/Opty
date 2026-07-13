@@ -102,8 +102,9 @@ public class VentaServiceImpl implements VentaService {
 
     @Override
     public VentaCabecera registrarVentaMultiproducto(Integer pacienteId, Integer usuarioId, Integer tiendaId,
-                                                      TipoComprobante tipoComprobante, List<VentaDetalle> detalles, String metodoPago) {
-        return ventaRepository.registrarVentaMultiproducto(pacienteId, usuarioId, tiendaId, tipoComprobante, detalles, metodoPago);
+                                                      TipoComprobante tipoComprobante, List<VentaDetalle> detalles,
+                                                      String metodoPago, BigDecimal montoPagado) {
+        return ventaRepository.registrarVentaMultiproducto(pacienteId, usuarioId, tiendaId, tipoComprobante, detalles, metodoPago, montoPagado);
     }
 }
 

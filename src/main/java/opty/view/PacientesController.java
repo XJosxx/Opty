@@ -107,6 +107,7 @@ public class PacientesController implements ModuleController {
     
     private Stage stage;
     private Usuario usuario;
+    private Paciente pacienteEditando = null;
 
     @Override
     public void setStage(Stage stage) {
@@ -123,7 +124,14 @@ public class PacientesController implements ModuleController {
     public void initialize() {
         // Enlazar columnas de la tabla de Pacientes
         colDocumento.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getNumDocumento()));
-        colNombre.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().nombreCompleto()));
+        colNombre.setCellValueFactory(cell -> {
+            var pac = cell.getValue();
+            String name = pac.nombreCompleto();
+            if (pac.getEsDestacado() != null && pac.getEsDestacado()) {
+                name += " ⭐ (" + (pac.getTipoDestacado() != null ? pac.getTipoDestacado().name() : "Destacado") + ")";
+            }
+            return new SimpleStringProperty(name);
+        });
         colTelefono.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTelefono() != null ? cell.getValue().getTelefono() : "-"));
         
         // Enlazar columna de Edad
@@ -259,6 +267,7 @@ public class PacientesController implements ModuleController {
 
     @FXML
     private void onMostrarRegistroPaciente() {
+        this.pacienteEditando = null;
         tablePacientes.getSelectionModel().clearSelection();
         panePlaceholder.setVisible(false);
         paneDetalle.setVisible(false);
@@ -272,6 +281,26 @@ public class PacientesController implements ModuleController {
         txtPacTelf.clear();
         dpPacFecNac.setValue(null);
         comboTipoDoc.getSelectionModel().select(TipoDocumento.DNI);
+    }
+
+    @FXML
+    private void onEditarPaciente() {
+        var selected = tablePacientes.getSelectionModel().getSelectedItem();
+        if (selected == null) return;
+
+        this.pacienteEditando = selected;
+        panePlaceholder.setVisible(false);
+        paneDetalle.setVisible(false);
+        paneNuevoPaciente.setVisible(true);
+
+        // Populate inputs
+        comboTipoDoc.setValue(selected.getTipoDocumento());
+        txtPacDoc.setText(selected.getNumDocumento());
+        txtPacNombre.setText(selected.getNombre());
+        txtPacApeP.setText(selected.getApellidoP());
+        txtPacApeM.setText(selected.getApellidoM());
+        txtPacTelf.setText(selected.getTelefono() != null ? selected.getTelefono() : "");
+        dpPacFecNac.setValue(selected.getFechaNacimiento());
     }
 
     @FXML
@@ -306,24 +335,41 @@ public class PacientesController implements ModuleController {
             return;
         }
 
-        var p = new Paciente();
-        p.setTipoDocumento(tipo);
-        p.setNumDocumento(doc);
-        p.setNombre(nombre);
-        p.setApellidoP(apeP);
-        p.setApellidoM(apeM);
-        p.setTelefono(telf);
-        p.setFechaNacimiento(fecNac);
-        p.setTiendaId(usuario.getTiendaId());
-        p.setEsDestacado(false);
-
         try {
-            var guardado = pacienteService.save(p);
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Paciente Registrado", "El paciente se registró correctamente.");
-            cargarPacientes();
-            tablePacientes.getSelectionModel().select(guardado);
+            if (pacienteEditando == null) {
+                // Modo creación
+                var p = new Paciente();
+                p.setTipoDocumento(tipo);
+                p.setNumDocumento(doc);
+                p.setNombre(nombre);
+                p.setApellidoP(apeP);
+                p.setApellidoM(apeM);
+                p.setTelefono(telf);
+                p.setFechaNacimiento(fecNac);
+                p.setTiendaId(usuario.getTiendaId());
+                p.setEsDestacado(false);
+
+                var guardado = pacienteService.save(p);
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Paciente Registrado", "El paciente se registró correctamente.");
+                cargarPacientes();
+                tablePacientes.getSelectionModel().select(guardado);
+            } else {
+                // Modo edición
+                pacienteEditando.setTipoDocumento(tipo);
+                pacienteEditando.setNumDocumento(doc);
+                pacienteEditando.setNombre(nombre);
+                pacienteEditando.setApellidoP(apeP);
+                pacienteEditando.setApellidoM(apeM);
+                pacienteEditando.setTelefono(telf);
+                pacienteEditando.setFechaNacimiento(fecNac);
+
+                pacienteService.update(pacienteEditando);
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Paciente Actualizado", "Los datos del paciente fueron actualizados exitosamente.");
+                cargarPacientes();
+                tablePacientes.getSelectionModel().select(pacienteEditando);
+            }
         } catch (Exception e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Registro", "No se pudo guardar el paciente: " + e.getMessage());
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de Guardado", "No se pudo guardar el paciente: " + e.getMessage());
         }
     }
 
@@ -405,6 +451,20 @@ public class PacientesController implements ModuleController {
         }
     }
 
+    @FXML
+    private void onIniciarVentaPaciente() {
+        var paciente = tablePacientes.getSelectionModel().getSelectedItem();
+        if (paciente == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Seleccione Paciente", "Por favor, seleccione un paciente de la lista.");
+            return;
+        }
+        UserSession.getInstance().setPacienteSeleccionado(paciente);
+        var mc = UserSession.getInstance().getMainController();
+        if (mc != null) {
+            mc.onVentas();
+        }
+    }
+
     private void mostrarAlerta(Alert.AlertType type, String title, String content) {
         var alert = new Alert(type);
         alert.setTitle(title);
@@ -454,11 +514,13 @@ public class PacientesController implements ModuleController {
     }
 
     private String extractJsonValue(String json, String key) {
-        String pattern = "\"" + key + "\"\\s*:\\s*\"([^\"]*)\"";
+        String pattern = "(?:\"|')?" + key + "(?:\"|')?\\s*:\\s*(?:\"([^\"]*)\"|'([^']*)'|([^,}]*))";
         java.util.regex.Pattern r = java.util.regex.Pattern.compile(pattern);
         java.util.regex.Matcher m = r.matcher(json);
         if (m.find()) {
-            return m.group(1);
+            if (m.group(1) != null) return m.group(1).trim();
+            if (m.group(2) != null) return m.group(2).trim();
+            if (m.group(3) != null) return m.group(3).trim();
         }
         return "";
     }

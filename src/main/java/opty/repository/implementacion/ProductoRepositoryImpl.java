@@ -185,6 +185,21 @@ public class ProductoRepositoryImpl extends BaseJdbcRepository implements Produc
         return list;
     }
 
+    @Override
+    public Optional<Producto> findByNombreAndTienda(String nombre, Integer tiendaId) {
+        var sql = SELECT_COLUMNS + " WHERE nombre = ? AND tienda_id = ?";
+        try (var conn = getConnection(); var ps = conn.prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            ps.setInt(2, tiendaId);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) return Optional.of(map(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al buscar producto por nombre y tienda", e);
+        }
+        return Optional.empty();
+    }
+
     private Producto map(ResultSet rs) throws SQLException {
         var p = new Producto();
         p.setId(rs.getInt("id"));

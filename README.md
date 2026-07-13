@@ -108,3 +108,12 @@ La aplicación cuenta con control de accesos y menús laterales dinámicos segú
 - **MySQL Connector/J 9.0+** (Consultas nativas y control de transacciones atómicas a nivel de servicio)
 - **ControlsFX** (Componentes visuales para la UI)
 - **Vanilla CSS** (Estilos premium aplicados sobre componentes FXML)
+
+---
+
+## 🎓 Recursos para la Sustentación Académica
+
+Para facilitar la presentación y defensa del proyecto frente a los docentes, se han elaborado los siguientes recursos detallados:
+
+*   **[Guía de Exposición - Script Paso a Paso](file:///D:/Tareas_momentaneas/Ciclo%205/Base_datos/proyecto_optica_BD/Opty/GUIA_DE_EXPOSICION.md)**: Contiene un guion cronometrado palabra por palabra, con instrucciones exactas de qué hacer en pantalla, qué decir en cada minuto y cómo responder a posibles preguntas difíciles del jurado.
+*   **[Guía Técnica de Base de Datos](file:///D:/Tareas_momentaneas/Ciclo%205/Base_datos/proyecto_optica_BD/Opty/README_BD_ENTREGABLE.md)**: Sustento técnico completo sobre la arquitectura de acceso a datos (JDBC + HikariCP), mapeo de procedimientos almacenados, triggers, vistas y el algoritmo de migraciones automáticas.

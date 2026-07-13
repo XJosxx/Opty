@@ -98,8 +98,8 @@ public class CompraServiceImpl implements CompraService {
 
     @Override
     public CompraCabecera registrarCompraMultiproducto(Integer proveedorId, Integer usuarioId, Integer tiendaId,
-                                                       List<CompraDetalle> detalles, String metodoPago) {
-        return compraRepository.registrarCompraMultiproducto(proveedorId, usuarioId, tiendaId, detalles, metodoPago);
+                                                       List<CompraDetalle> detalles, String metodoPago, BigDecimal montoPagado) {
+        return compraRepository.registrarCompraMultiproducto(proveedorId, usuarioId, tiendaId, detalles, metodoPago, montoPagado);
     }
 }
 

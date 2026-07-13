@@ -27,5 +27,5 @@ public interface CompraRepository extends CrudRepository<CompraCabecera, Integer
     BigDecimal sumComprasByDateRange(LocalDateTime desde, LocalDateTime hasta);
 
     CompraCabecera registrarCompraMultiproducto(Integer proveedorId, Integer usuarioId, Integer tiendaId,
-                                                List<CompraDetalle> detalles, String metodoPago);
+                                                List<CompraDetalle> detalles, String metodoPago, BigDecimal montoPagado);
 }

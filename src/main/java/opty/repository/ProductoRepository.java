@@ -17,4 +17,6 @@ public interface ProductoRepository extends CrudRepository<Producto, Integer> {
     List<Producto> findDisponibles(Integer tiendaId);
 
     List<Producto> findActivos();
+
+    Optional<Producto> findByNombreAndTienda(String nombre, Integer tiendaId);
 }

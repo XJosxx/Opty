@@ -56,8 +56,11 @@
                     <TextField fx:id="txtApellidoM" promptText="Apellido materno..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
                     
                     <!-- Documento -->
-                    <Label styleClass="form-label" text="Nro. Documento (DNI/RUC):" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <TextField fx:id="txtDocumento" promptText="Documento de identidad..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label styleClass="form-label" text="Documento:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <HBox spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <ComboBox fx:id="comboTipoDoc" prefWidth="120.0" promptText="Tipo" />
+                        <TextField fx:id="txtDocumento" promptText="Número de documento..." HBox.hgrow="ALWAYS" />
+                    </HBox>
                     
                     <!-- Username -->
                     <Label styleClass="form-label" text="Nombre de Usuario (Log):" GridPane.columnIndex="0" GridPane.rowIndex="4" />

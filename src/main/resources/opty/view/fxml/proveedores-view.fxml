@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="opty.view.ProveedoresController">
+    <AnchorPane styleClass="dashboard-root">
+        <HBox spacing="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20">
+            
+            <!-- Columna Izquierda: Listado de Proveedores -->
+            <VBox spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="550.0">
+                <Label styleClass="section-title" text="PROVEEDORES Y CONTACTOS COMERCIALES" />
+                <Separator />
+                
+                <TableView fx:id="tableProveedores" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colProvId" text="ID" prefWidth="50.0" />
+                        <TableColumn fx:id="colProvRuc" text="RUC" prefWidth="120.0" />
+                        <TableColumn fx:id="colProvEmpresa" text="Razón Social / Empresa" prefWidth="200.0" />
+                        <TableColumn fx:id="colProvContacto" text="Contacto" prefWidth="150.0" />
+                        <TableColumn fx:id="colProvEstado" text="Estado" prefWidth="90.0" />
+                    </columns>
+                </TableView>
+            </VBox>
+            
+            <!-- Columna Derecha: Formulario de Registro / Edición -->
+            <VBox spacing="15" styleClass="card" HBox.hgrow="ALWAYS" prefWidth="590.0">
+                <HBox alignment="CENTER_LEFT">
+                    <VBox HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblFormTitle" styleClass="section-title" text="REGISTRAR NUEVO PROVEEDOR" />
+                        <Label styleClass="section-subtitle" text="Administración de proveedores comerciales para compras e insumos." />
+                    </VBox>
+                    <Button onAction="#onNuevoProveedor" styleClass="btn-secondary" text="Nuevo" />
+                </HBox>
+                
+                <Separator />
+                
+                <!-- Campos del Formulario -->
+                <GridPane hgap="15" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="35" />
+                        <ColumnConstraints percentWidth="65" />
+                    </columnConstraints>
+                    
+                    <!-- Razón Social / Empresa -->
+                    <Label styleClass="form-label" text="Razón Social / Empresa:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="txtNombreEmpresa" promptText="Nombre de la empresa..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    
+                    <!-- RUC -->
+                    <Label styleClass="form-label" text="Número RUC:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="txtRuc" promptText="Número RUC (11 dígitos)..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    
+                    <!-- Nombre Contacto -->
+                    <Label styleClass="form-label" text="Nombre de Contacto:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="txtNombreContacto" promptText="Representante o vendedor..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    
+                    <!-- Teléfono -->
+                    <Label styleClass="form-label" text="Teléfono / Celular:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="txtTelefono" promptText="Número de contacto..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    
+                    <!-- Email -->
+                    <Label styleClass="form-label" text="Correo Electrónico:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="txtEmail" promptText="ejemplo@proveedor.com" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    
+                    <!-- Estado Activo -->
+                    <Label styleClass="form-label" text="Estado Activo:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <CheckBox fx:id="checkActivo" text="Permitir emitir compras a este proveedor" selected="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                </GridPane>
+                
+                <Separator style="-fx-padding: 10px 0;" />
+                
+                <HBox spacing="15" alignment="CENTER_RIGHT">
+                    <Button onAction="#onGuardarProveedor" styleClass="btn-primary" text="Guardar Proveedor" prefHeight="40.0" prefWidth="180.0" />
+                </HBox>
+            </VBox>
+            
+        </HBox>
+    </AnchorPane>
+</ScrollPane>

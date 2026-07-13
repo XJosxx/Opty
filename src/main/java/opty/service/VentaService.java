@@ -43,5 +43,6 @@ public interface VentaService {
     BigDecimal sumVentasByDateRange(LocalDateTime desde, LocalDateTime hasta);
 
     VentaCabecera registrarVentaMultiproducto(Integer pacienteId, Integer usuarioId, Integer tiendaId,
-                                              TipoComprobante tipoComprobante, List<VentaDetalle> detalles, String metodoPago);
+                                              TipoComprobante tipoComprobante, List<VentaDetalle> detalles,
+                                              String metodoPago, BigDecimal montoPagado);
 }

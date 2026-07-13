@@ -80,5 +80,10 @@ public class ProductoServiceImpl implements ProductoService {
     public List<Producto> findActivos() {
         return productoRepository.findActivos();
     }
+
+    @Override
+    public Optional<Producto> findByNombreAndTienda(String nombre, Integer tiendaId) {
+        return productoRepository.findByNombreAndTienda(nombre, tiendaId);
+    }
 }
 

@@ -257,7 +257,7 @@ public class CompraRepositoryImpl extends BaseJdbcRepository implements CompraRe
 
     @Override
     public CompraCabecera registrarCompraMultiproducto(Integer proveedorId, Integer usuarioId, Integer tiendaId,
-                                                       List<CompraDetalle> detalles, String metodoPago) {
+                                                       List<CompraDetalle> detalles, String metodoPago, BigDecimal montoPagado) {
         if (detalles == null || detalles.isEmpty()) {
             throw new IllegalArgumentException("Debe agregar al menos un insumo a la compra");
         }
@@ -268,10 +268,15 @@ public class CompraRepositoryImpl extends BaseJdbcRepository implements CompraRe
             conn = getConnection();
             conn.setAutoCommit(false);
             
-            // 1. Insert cabecera
+            // 1. Insert cabecera (iniciamos en POR_PAGAR, lo actualizamos al final)
             int compraId = 0;
-            var sqlCab = "INSERT INTO compras_cabecera (proveedor_id, usuario_id, tienda_id, numero_orden, estado_fisico, estado_financiero, monto_total) VALUES (?, ?, ?, ?, 'PENDIENTE', 'POR_PAGAR', 0)";
-            try (var ps = conn.prepareStatement(sqlCab, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            var sqlCab = "INSERT INTO compras_cabecera (proveedor_id, usuario_id, tienda_id, numero_ticket, numero_orden, estado_fisico, estado_financiero, monto_total) VALUES (?, ?, ?, NULL, ?, 'PENDIENTE', 'POR_PAGAR', 0)";
+            // Nota: En base de datos compras_cabecera tiene numero_orden pero no numero_ticket. La tabla es compras_cabecera.
+            // Permíteme revisar el insert en el archivo original:
+            // "INSERT INTO compras_cabecera (proveedor_id, usuario_id, tienda_id, numero_orden, estado_fisico, estado_financiero, monto_total) VALUES (?, ?, ?, ?, 'PENDIENTE', 'POR_PAGAR', 0)"
+            // Sí, usemos la query original exacta:
+            var sqlCabOriginal = "INSERT INTO compras_cabecera (proveedor_id, usuario_id, tienda_id, numero_orden, estado_fisico, estado_financiero, monto_total) VALUES (?, ?, ?, ?, 'PENDIENTE', 'POR_PAGAR', 0)";
+            try (var ps = conn.prepareStatement(sqlCabOriginal, java.sql.Statement.RETURN_GENERATED_KEYS)) {
                 ps.setInt(1, proveedorId);
                 ps.setInt(2, usuarioId);
                 ps.setInt(3, tiendaId);
@@ -290,7 +295,7 @@ public class CompraRepositoryImpl extends BaseJdbcRepository implements CompraRe
             
             // 2. Loop insert detalles y kardex
             var sqlDet = "INSERT INTO compras_detalle (compra_id, insumo_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, 0)";
-            var sqlKardex = "INSERT INTO kardex (tienda_id, usuario_id, insumo_id, compra_id, tipo_movimiento, motivo, cantidad, cantidad_saldo) VALUES (?, ?, ?, ?, 'ENTRADA', 'Compra a proveedor', ?, 0)";
+            var sqlKardex = "INSERT INTO kardex (tienda_id, usuario_id, insumo_id, compra_id, tipo_movimiento, motivo, cantidad, cantidad_saldo) VALUES (?, ?, ?, ?, ?, 'Compra a proveedor', ?, 0)";
             
             try (var psDet = conn.prepareStatement(sqlDet);
                  var psKardex = conn.prepareStatement(sqlKardex)) {
@@ -324,7 +329,8 @@ public class CompraRepositoryImpl extends BaseJdbcRepository implements CompraRe
                     psKardex.setInt(2, usuarioId);
                     psKardex.setInt(3, item.getInsumoId());
                     psKardex.setInt(4, compraId);
-                    psKardex.setInt(5, item.getCantidad());
+                    psKardex.setString(5, opty.model.enums.TipoMovimientoKardex.ENTRADA.name());
+                    psKardex.setInt(6, item.getCantidad());
                     psKardex.executeUpdate();
                 }
             }
@@ -341,15 +347,42 @@ public class CompraRepositoryImpl extends BaseJdbcRepository implements CompraRe
                 }
             }
             
+            // 3.5 Calcular Estado Financiero final y Monto a Caja (Egreso)
+            String estadoFinanciero = EstadoFinanciero.PAGADO.name();
+            BigDecimal montoCaja = totalCompra;
+            if (montoPagado != null) {
+                if (montoPagado.compareTo(BigDecimal.ZERO) <= 0) {
+                    estadoFinanciero = EstadoFinanciero.POR_PAGAR.name();
+                    montoCaja = BigDecimal.ZERO;
+                } else if (montoPagado.compareTo(totalCompra) < 0) {
+                    estadoFinanciero = EstadoFinanciero.PAGO_PARCIAL.name();
+                    montoCaja = montoPagado;
+                } else {
+                    estadoFinanciero = EstadoFinanciero.PAGADO.name();
+                    montoCaja = totalCompra;
+                }
+            }
+            
+            // Actualizar estado financiero en cabecera
+            var sqlUpdateEst = "UPDATE compras_cabecera SET estado_financiero = ? WHERE id = ?";
+            try (var psUpdateEst = conn.prepareStatement(sqlUpdateEst)) {
+                psUpdateEst.setString(1, estadoFinanciero);
+                psUpdateEst.setInt(2, compraId);
+                psUpdateEst.executeUpdate();
+            }
+            
             // 4. Insert caja entry (egreso)
-            var sqlCaja = "INSERT INTO movimientos_caja (tienda_id, usuario_id, compra_id, tipo, metodo_pago, monto, descripcion) VALUES (?, ?, ?, 'SALIDA', ?, ?, 'Compra de insumos')";
-            try (var psCaja = conn.prepareStatement(sqlCaja)) {
-                psCaja.setInt(1, tiendaId);
-                psCaja.setInt(2, usuarioId);
-                psCaja.setInt(3, compraId);
-                psCaja.setString(4, metodoPago != null ? metodoPago : "EFECTIVO");
-                psCaja.setBigDecimal(5, totalCompra);
-                psCaja.executeUpdate();
+            if (montoCaja.compareTo(BigDecimal.ZERO) > 0) {
+                var sqlCaja = "INSERT INTO movimientos_caja (tienda_id, usuario_id, compra_id, tipo, metodo_pago, monto, descripcion) VALUES (?, ?, ?, ?, ?, ?, 'Compra de insumos (A cuenta / Pago)')";
+                try (var psCaja = conn.prepareStatement(sqlCaja)) {
+                    psCaja.setInt(1, tiendaId);
+                    psCaja.setInt(2, usuarioId);
+                    psCaja.setInt(3, compraId);
+                    psCaja.setString(4, opty.model.enums.TipoMovimientoCaja.SALIDA.name());
+                    psCaja.setString(5, metodoPago != null ? metodoPago : opty.model.enums.MetodoPago.EFECTIVO.name());
+                    psCaja.setBigDecimal(6, montoCaja);
+                    psCaja.executeUpdate();
+                }
             }
             
             conn.commit();

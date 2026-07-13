@@ -48,6 +48,8 @@ public class ComprasController implements ModuleController {
     @FXML private Label lblResSubtotal;
     @FXML private Label lblResIgv;
     @FXML private Label lblResTotal;
+    @FXML private TextField txtMontoCuenta;
+    @FXML private Label lblSaldoPendiente;
 
     // --- Servicios ---
     private final ProveedorService proveedorService = new ProveedorServiceImpl();
@@ -124,6 +126,15 @@ public class ComprasController implements ModuleController {
                 lblStockIns.setText("-");
             }
         });
+
+        // Listener para abono/pago a cuenta
+        txtMontoCuenta.textProperty().addListener((obs, oldVal, newVal) -> {
+            BigDecimal total = BigDecimal.ZERO;
+            for (var item : listaCarrito) {
+                total = total.add(item.getSubtotal());
+            }
+            recalcularSaldoPendiente(total);
+        });
     }
 
     private void onCargarDatos() {
@@ -149,42 +160,33 @@ public class ComprasController implements ModuleController {
     private void onAgregarCarrito() {
         var insumo = comboInsumos.getValue();
         if (insumo == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Seleccione Insumo", "Seleccione un insumo de la lista.");
-            return;
-        }
-
-        var precioStr = txtPrecioComp.getText();
-        if (precioStr == null || precioStr.isBlank()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Precio Requerido", "Ingrese el precio unitario de compra facturado.");
+            mostrarAlerta(Alert.AlertType.WARNING, "Seleccione Insumo", "Por favor seleccione un insumo de la lista.");
             return;
         }
 
         BigDecimal precio;
         try {
-            precio = new BigDecimal(precioStr);
+            precio = new BigDecimal(txtPrecioComp.getText());
             if (precio.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new NumberFormatException();
+                mostrarAlerta(Alert.AlertType.WARNING, "Precio inválido", "El precio de compra debe ser mayor a cero.");
+                return;
             }
-        } catch (NumberFormatException e) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Precio Inválido", "Ingrese un monto numérico positivo.");
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Precio inválido", "Ingrese un precio numérico válido.");
             return;
         }
 
         int cantidad = spinCantidad.getValue();
 
-        // Validar si ya existe
-        CompraDetalle existente = null;
-        for (var item : listaCarrito) {
-            if (item.getInsumoId().equals(insumo.getId())) {
-                existente = item;
-                break;
-            }
-        }
+        // Si ya existe en el carrito, sumar cantidad
+        var existente = listaCarrito.stream()
+                .filter(item -> item.getInsumoId().equals(insumo.getId()))
+                .findFirst();
 
-        if (existente != null) {
-            existente.setCantidad(existente.getCantidad() + cantidad);
-            existente.setPrecioUnitario(precio); // Actualizar al último precio
-            existente.setSubtotal(precio.multiply(BigDecimal.valueOf(existente.getCantidad())));
+        if (existente.isPresent()) {
+            var det = existente.get();
+            det.setCantidad(det.getCantidad() + cantidad);
+            det.setSubtotal(det.getPrecioUnitario().multiply(BigDecimal.valueOf(det.getCantidad())));
             tableCarrito.refresh();
         } else {
             var det = new CompraDetalle();
@@ -214,6 +216,28 @@ public class ComprasController implements ModuleController {
         lblResSubtotal.setText("S/ " + subtotal.toPlainString());
         lblResIgv.setText("S/ " + igv.toPlainString());
         lblResTotal.setText("S/ " + total.setScale(2, RoundingMode.HALF_UP).toPlainString());
+        
+        recalcularSaldoPendiente(total);
+    }
+
+    private void recalcularSaldoPendiente(BigDecimal total) {
+        BigDecimal cuenta = BigDecimal.ZERO;
+        try {
+            String txt = txtMontoCuenta.getText().trim();
+            if (!txt.isEmpty()) {
+                cuenta = new BigDecimal(txt);
+            } else {
+                lblSaldoPendiente.setText("S/ 0.00");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            // ignored
+        }
+        BigDecimal saldo = total.subtract(cuenta);
+        if (saldo.compareTo(BigDecimal.ZERO) < 0) {
+            saldo = BigDecimal.ZERO;
+        }
+        lblSaldoPendiente.setText("S/ " + saldo.setScale(2, RoundingMode.HALF_UP).toPlainString());
     }
 
     @FXML
@@ -230,13 +254,25 @@ public class ComprasController implements ModuleController {
 
         var metodo = comboMetodoPago.getValue();
 
+        BigDecimal abono = null;
+        try {
+            String abonoText = txtMontoCuenta.getText().trim();
+            if (!abonoText.isEmpty()) {
+                abono = new BigDecimal(abonoText);
+            }
+        } catch (NumberFormatException e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Monto inválido", "El monto ingresado a cuenta no es válido.");
+            return;
+        }
+
         try {
             var compra = compraService.registrarCompraMultiproducto(
                     prov.getId(),
                     usuario.getId(),
                     usuario.getTiendaId(),
                     listaCarrito,
-                    metodo.name()
+                    metodo.name(),
+                    abono
             );
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Compra Procesada", "La compra se registró exitosamente. Nro. Orden: " + compra.getNumeroOrden());
@@ -244,6 +280,7 @@ public class ComprasController implements ModuleController {
             // Resetear formulario
             listaCarrito.clear();
             comboProveedores.getSelectionModel().clearSelection();
+            txtMontoCuenta.clear();
             recalcularTotales();
             onCargarDatos(); // Recargar inventarios para ver stocks actualizados
 

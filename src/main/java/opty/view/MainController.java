@@ -27,6 +27,7 @@ public class MainController implements ModuleController {
     @FXML private Button btnPacientes;
     @FXML private Button btnVentas;
     @FXML private Button btnCompras;
+    @FXML private Button btnProveedores;
     @FXML private Button btnInventario;
     @FXML private Button btnUsuarios;
     @FXML private Button btnOrdenes;
@@ -43,14 +44,17 @@ public class MainController implements ModuleController {
     @Override
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+        UserSession.getInstance().setMainController(this);
         userLabel.setText(usuario.nombreCompleto());
         storeLabel.setText("");
         
         // Aplicar restricciones de visualización basadas en el Rol del usuario
         if (usuario.getRol() == Rol.VENDEDOR) {
-            // El Vendedor tiene acceso a Ventas, Pacientes, Inventario, Órdenes, pero NO a la gestión de Usuarios
+            // El Vendedor tiene acceso a Ventas, Pacientes, Inventario, Órdenes, pero NO a la gestión de Usuarios y Proveedores
             btnUsuarios.setVisible(false);
             btnUsuarios.setManaged(false);
+            btnProveedores.setVisible(false);
+            btnProveedores.setManaged(false);
             onDashboard();
         } else if (usuario.getRol() == Rol.MEDICO) {
             // El Médico (Optometrista) solo debe ver Pacientes y Órdenes de Trabajo para exámenes clínicos y recetas
@@ -60,6 +64,8 @@ public class MainController implements ModuleController {
             btnVentas.setManaged(false);
             btnCompras.setVisible(false);
             btnCompras.setManaged(false);
+            btnProveedores.setVisible(false);
+            btnProveedores.setManaged(false);
             btnInventario.setVisible(false);
             btnInventario.setManaged(false);
             btnUsuarios.setVisible(false);
@@ -100,43 +106,49 @@ public class MainController implements ModuleController {
     }
 
     @FXML
-    private void onDashboard() {
+    public void onDashboard() {
         loadModule("/opty/view/fxml/dashboard-view.fxml", "Dashboard");
         setActiveButton(btnDashboard);
     }
 
     @FXML
-    private void onPacientes() {
+    public void onPacientes() {
         loadModule("/opty/view/fxml/pacientes-view.fxml", "Pacientes & Consultas");
         setActiveButton(btnPacientes);
     }
 
     @FXML
-    private void onVentas() {
+    public void onVentas() {
         loadModule("/opty/view/fxml/ventas-view.fxml", "Módulo de Ventas");
         setActiveButton(btnVentas);
     }
 
     @FXML
-    private void onCompras() {
+    public void onCompras() {
         loadModule("/opty/view/fxml/compras-view.fxml", "Módulo de Compras");
         setActiveButton(btnCompras);
     }
 
     @FXML
-    private void onInventario() {
+    public void onProveedores() {
+        loadModule("/opty/view/fxml/proveedores-view.fxml", "Gestión de Proveedores");
+        setActiveButton(btnProveedores);
+    }
+
+    @FXML
+    public void onInventario() {
         loadModule("/opty/view/fxml/inventario-view.fxml", "Inventario & Kardex");
         setActiveButton(btnInventario);
     }
 
     @FXML
-    private void onUsuarios() {
-        loadModule("/opty/view/fxml/usuarios-view.fxml", "Módulo de Usuarios");
+    public void onUsuarios() {
+        loadModule("/opty/view/fxml/usuarios-view.fxml", "Gestión de Usuarios");
         setActiveButton(btnUsuarios);
     }
 
     @FXML
-    private void onOrdenes() {
+    public void onOrdenes() {
         loadModule("/opty/view/fxml/ordenes-view.fxml", "Órdenes de Trabajo");
         setActiveButton(btnOrdenes);
     }

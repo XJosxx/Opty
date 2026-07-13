@@ -36,7 +36,11 @@
                             <Label fx:id="lblPacienteNombre" styleClass="section-title" text="SELECCIONE UN PACIENTE" />
                             <Label fx:id="lblPacienteDocumento" styleClass="section-subtitle" text="DNI/RUC —" />
                         </VBox>
-                        <Button fx:id="btnNuevaConsultaTab" onAction="#onIniciarConsultaForm" styleClass="btn-primary" text="Nueva Consulta" />
+                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                            <Button fx:id="btnIniciarVenta" onAction="#onIniciarVentaPaciente" styleClass="btn-secondary" text="Nueva Venta" />
+                            <Button fx:id="btnEditarPaciente" onAction="#onEditarPaciente" styleClass="btn-info" text="Editar Paciente" />
+                            <Button fx:id="btnNuevaConsultaTab" onAction="#onIniciarConsultaForm" styleClass="btn-primary" text="Nueva Consulta" />
+                        </HBox>
                     </HBox>
                     
                     <Separator />

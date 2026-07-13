@@ -20,6 +20,7 @@
                 <Button fx:id="btnPacientes" onAction="#onPacientes" styleClass="sidebar-btn" text="Pacientes" />
                 <Button fx:id="btnVentas" onAction="#onVentas" styleClass="sidebar-btn" text="Ventas" />
                 <Button fx:id="btnCompras" onAction="#onCompras" styleClass="sidebar-btn" text="Compras" />
+                <Button fx:id="btnProveedores" onAction="#onProveedores" styleClass="sidebar-btn" text="Proveedores" />
                 <Button fx:id="btnInventario" onAction="#onInventario" styleClass="sidebar-btn" text="Inventario" />
                 <Button fx:id="btnUsuarios" onAction="#onUsuarios" styleClass="sidebar-btn" text="Usuarios" />
                 <Button fx:id="btnOrdenes" onAction="#onOrdenes" styleClass="sidebar-btn" text="Órdenes Trabajo" />

@@ -1,10 +1,9 @@
 /* ==========================================================================
-   Opty CSS — Diseñado por UI/UX Senior para Óptica Premium
-   Paleta: Blanco Tiza, Gris Grafito Oscuro, Azul Pastel de Acento y Beige Cálido
+   Opty CSS - Estilos generales de la aplicación
    ========================================================================== */
 
 .root {
-    /* --- Sistema de Diseño Cromático --- */
+    /* Variables de colores (Paleta principal y fondos) */
     -color-chalk-white: #faf9f6;          /* Blanco tiza principal */
     -color-chalk-bg: #f4f3ef;             /* Fondo blanco tiza cálido */
     -color-graphite-dark: #151515;        /* Gris grafito ultra oscuro (casi negro) */
@@ -16,7 +15,7 @@
     -color-warm-beige: #ebdcc9;           /* Beige cálido secundario */
     -color-warm-beige-light: #f7f2ea;     /* Fondo beige ultra suave */
 
-    /* --- Estados Semánticos (Tonos Pastel Opacos) --- */
+    /* Colores para estados (éxito, advertencia, peligro, info) */
     -color-success-bg: #eaf5ee;
     -color-success-text: #507e60;
     -color-warning-bg: #faf5eb;
@@ -26,7 +25,7 @@
     -color-info-bg: #ebf1f7;
     -color-info-text: #597d9e;
 
-    /* --- Tipografía y Base --- */
+    /* Tipografía y estilos base */
     -fx-font-family: 'Segoe UI', 'Inter', sans-serif;
     -fx-background-color: -color-chalk-bg;
     -fx-font-size: 13px;
@@ -37,7 +36,7 @@
    Componentes de Diseño (Layouts & Cards)
    ========================================================================== */
 
-/* --- Card con Efecto Cristaloftálmico (Glassmorphism Simulado) --- */
+/* --- Cards y contenedores con sombra --- */
 .card {
     -fx-background-color: rgba(250, 249, 246, 0.85); /* Semi-transparencia */
     -fx-background-radius: 16px;
@@ -45,7 +44,7 @@
     -fx-border-width: 1px;
     -fx-border-radius: 16px;
     -fx-padding: 24px;
-    /* Sombra difusa multi-capa y suave */
+    /* Sombra suave */
     -fx-effect: dropshadow(three-pass-box, rgba(21, 21, 21, 0.04), 20, 0, 0, 10);
 }
 
@@ -54,7 +53,7 @@
     -fx-effect: dropshadow(three-pass-box, rgba(21, 21, 21, 0.07), 30, 0, 0, 12);
 }
 
-/* --- Títulos Sofisticados --- */
+/* --- Títulos de secciones --- */
 .section-title {
     -fx-font-size: 15px;
     -fx-font-weight: 700;
@@ -70,7 +69,7 @@
     -fx-padding: 2px 0 0 0;
 }
 
-/* --- Métricas del Dashboard --- */
+/* --- Contadores y métricas del Dashboard --- */
 .metric-value {
     -fx-font-size: 32px;
     -fx-font-weight: 700;
@@ -94,7 +93,7 @@
    Botones Premium
    ========================================================================== */
 
-/* --- Botón Primario (Gris Grafito Minimalista) --- */
+/* --- Botón Primario --- */
 .btn-primary {
     -fx-background-color: -color-graphite-dark;
     -fx-text-fill: -color-chalk-white;
@@ -110,7 +109,7 @@
     -fx-effect: dropshadow(three-pass-box, rgba(21, 21, 21, 0.15), 12, 0, 0, 4);
 }
 
-/* --- Botón Secundario (Azul Pastel / Transparente) --- */
+/* --- Botón Secundario --- */
 .btn-secondary {
     -fx-background-color: transparent;
     -fx-text-fill: -color-graphite-soft;
@@ -129,7 +128,7 @@
     -fx-text-fill: -color-graphite-dark;
 }
 
-/* --- Botón de Peligro --- */
+/* --- Botón de Acción de Peligro --- */
 .btn-danger {
     -fx-background-color: -color-danger-bg;
     -fx-text-fill: -color-danger-text;
@@ -187,7 +186,7 @@
     -fx-border-radius: 12px;
 }
 
-/* --- DatePicker --- */
+/* --- Selector de Fecha (DatePicker) --- */
 .date-picker {
     -fx-background-color: rgba(255, 255, 255, 0.9);
     -fx-background-radius: 12px;
@@ -284,7 +283,7 @@
     -fx-font-weight: 700;
 }
 
-/* Asignaciones genéricas */
+/* Estados genéricos */
 .badge-active   { -fx-background-color: -color-success-bg; -fx-text-fill: -color-success-text; }
 .badge-inactive { -fx-background-color: -color-danger-bg;  -fx-text-fill: -color-danger-text; }
 .badge-pending  { -fx-background-color: -color-warning-bg; -fx-text-fill: -color-warning-text; }
@@ -293,7 +292,7 @@
 .badge-danger   { -fx-background-color: -color-danger-bg;  -fx-text-fill: -color-danger-text; }
 .badge-info     { -fx-background-color: -color-info-bg;    -fx-text-fill: -color-info-text; }
 
-/* Asignaciones de Orden de Trabajo */
+/* Estados específicos para Órdenes de Trabajo */
 .badge-entregado   { -fx-background-color: -color-success-bg; -fx-text-fill: -color-success-text; }
 .badge-laboratorio { -fx-background-color: -color-info-bg;    -fx-text-fill: -color-info-text; }
 .badge-listo       { -fx-background-color: -color-warning-bg; -fx-text-fill: -color-warning-text; }
@@ -303,7 +302,7 @@
    Navegación e Interfaz Principal
    ========================================================================== */
 
-/* --- Sidebar (Barra Lateral Grafito Oscuro) --- */
+/* --- Barra Lateral de Navegación (Sidebar) --- */
 .sidebar {
     -fx-background-color: -color-graphite-dark;
     -fx-padding: 0;
@@ -375,7 +374,7 @@
     -fx-text-fill: #ffcece;
 }
 
-/* --- Topbar (Barra Superior) --- */
+/* --- Barra Superior (Topbar) --- */
 .topbar {
     -fx-background-color: -color-chalk-white;
     -fx-padding: 18px 30px;
@@ -399,7 +398,7 @@
    Otros Elementos
    ========================================================================== */
 
-/* --- Login Title --- */
+/* --- Estilos de la pantalla de Login --- */
 .login-title {
     -fx-font-size: 34px;
     -fx-font-weight: 800;
@@ -438,7 +437,7 @@
     -fx-background-color: transparent;
 }
 
-/* --- Pestañas (Tabs) --- */
+/* --- Contenedor de Pestañas (Tabs) --- */
 .tab-pane {
     -fx-background-color: transparent;
 }
@@ -461,7 +460,7 @@
     -fx-text-fill: -color-graphite-dark;
 }
 
-/* --- Tooltip --- */
+/* --- Tooltips --- */
 .tooltip {
     -fx-background-color: -color-graphite-dark;
     -fx-text-fill: -color-chalk-white;

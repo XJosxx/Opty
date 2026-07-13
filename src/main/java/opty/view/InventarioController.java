@@ -214,4 +214,137 @@ public class InventarioController implements ModuleController {
                 .toList();
         tableKardex.setItems(FXCollections.observableArrayList(filtered));
     }
+
+    private void mostrarAlerta(Alert.AlertType type, String title, String content) {
+        var alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        if (stage != null) alert.initOwner(stage);
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void onAjustarStockProducto() {
+        var prod = tableProductos.getSelectionModel().getSelectedItem();
+        if (prod == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Selección Requerida", "Por favor seleccione un producto de la tabla.");
+            return;
+        }
+
+        var dialogStock = new TextInputDialog(String.valueOf(prod.getStockActual()));
+        dialogStock.setTitle("Ajustar Stock");
+        dialogStock.setHeaderText("Ajustar stock para: " + prod.getNombre());
+        dialogStock.setContentText("Ingrese el nuevo stock actual:");
+        if (stage != null) dialogStock.initOwner(stage);
+        var optStock = dialogStock.showAndWait();
+        if (optStock.isEmpty()) return;
+
+        int nuevoStock;
+        try {
+            nuevoStock = Integer.parseInt(optStock.get().trim());
+            if (nuevoStock < 0) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Valor Inválido", "El stock no puede ser negativo.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Valor Inválido", "Por favor ingrese un número entero válido.");
+            return;
+        }
+
+        var dialogMotivo = new TextInputDialog("Ajuste manual de inventario");
+        dialogMotivo.setTitle("Motivo del Ajuste");
+        dialogMotivo.setHeaderText("Justificación del ajuste físico:");
+        dialogMotivo.setContentText("Motivo:");
+        if (stage != null) dialogMotivo.initOwner(stage);
+        var optMotivo = dialogMotivo.showAndWait();
+        if (optMotivo.isEmpty()) return;
+        var motivo = optMotivo.get().trim();
+        if (motivo.isEmpty()) motivo = "Ajuste manual de inventario";
+
+        int diff = nuevoStock - prod.getStockActual();
+        if (diff == 0) {
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Sin cambios", "El stock ingresado es idéntico al actual.");
+            return;
+        }
+
+        try {
+            var k = new Kardex();
+            k.setTiendaId(usuario.getTiendaId());
+            k.setUsuarioId(usuario.getId());
+            k.setProductoId(prod.getId());
+            k.setTipoMovimiento(TipoMovimientoKardex.AJUSTE);
+            k.setMotivo(motivo);
+            k.setCantidad(diff); // Cantidad firmada (+ / -)
+            k.setCantidadSaldo(0);
+
+            kardexService.save(k);
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Ajuste Exitoso", "El stock del producto se actualizó correctamente.");
+            onCargarDatos();
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo realizar el ajuste: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onAjustarStockInsumo() {
+        var ins = tableInsumos.getSelectionModel().getSelectedItem();
+        if (ins == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Selección Requerida", "Por favor seleccione un insumo de la tabla.");
+            return;
+        }
+
+        var dialogStock = new TextInputDialog(String.valueOf(ins.getStockActual()));
+        dialogStock.setTitle("Ajustar Stock");
+        dialogStock.setHeaderText("Ajustar stock para: " + ins.getNombre());
+        dialogStock.setContentText("Ingrese el nuevo stock actual:");
+        if (stage != null) dialogStock.initOwner(stage);
+        var optStock = dialogStock.showAndWait();
+        if (optStock.isEmpty()) return;
+
+        int nuevoStock;
+        try {
+            nuevoStock = Integer.parseInt(optStock.get().trim());
+            if (nuevoStock < 0) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Valor Inválido", "El stock no puede ser negativo.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Valor Inválido", "Por favor ingrese un número entero válido.");
+            return;
+        }
+
+        var dialogMotivo = new TextInputDialog("Ajuste manual de inventario");
+        dialogMotivo.setTitle("Motivo del Ajuste");
+        dialogMotivo.setHeaderText("Justificación del ajuste físico:");
+        dialogMotivo.setContentText("Motivo:");
+        if (stage != null) dialogMotivo.initOwner(stage);
+        var optMotivo = dialogMotivo.showAndWait();
+        if (optMotivo.isEmpty()) return;
+        var motivo = optMotivo.get().trim();
+        if (motivo.isEmpty()) motivo = "Ajuste manual de inventario";
+
+        int diff = nuevoStock - ins.getStockActual();
+        if (diff == 0) {
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Sin cambios", "El stock ingresado es idéntico al actual.");
+            return;
+        }
+
+        try {
+            var k = new Kardex();
+            k.setTiendaId(usuario.getTiendaId());
+            k.setUsuarioId(usuario.getId());
+            k.setInsumoId(ins.getId());
+            k.setTipoMovimiento(TipoMovimientoKardex.AJUSTE);
+            k.setMotivo(motivo);
+            k.setCantidad(diff);
+            k.setCantidadSaldo(0);
+
+            kardexService.save(k);
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Ajuste Exitoso", "El stock del insumo se actualizó correctamente.");
+            onCargarDatos();
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo realizar el ajuste: " + e.getMessage());
+        }
+    }
 }

@@ -96,6 +96,8 @@
                                 <RowConstraints />
                                 <RowConstraints />
                                 <RowConstraints />
+                                <RowConstraints />
+                                <RowConstraints />
                             </rowConstraints>
                             
                             <Label style="-fx-font-size: 13px;" text="Subtotal:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
@@ -106,6 +108,12 @@
                             
                             <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="TOTAL COMPRA:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                             <Label fx:id="lblResTotal" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -color-graphite-dark;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                            <Label style="-fx-font-size: 12px; -fx-text-fill: -color-info-text; -fx-font-weight: bold;" text="A Cuenta (Abono):" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                            <TextField fx:id="txtMontoCuenta" prefWidth="100.0" promptText="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" style="-fx-font-size: 11px; -fx-padding: 3px;" />
+
+                            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="Saldo Pendiente:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                            <Label fx:id="lblSaldoPendiente" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: -color-danger-text;" text="S/ 0.00" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                         </GridPane>
                         
                         <Button onAction="#onProcesarCompra" styleClass="btn-primary" text="Procesar Compra" prefHeight="45.0" prefWidth="180.0" />

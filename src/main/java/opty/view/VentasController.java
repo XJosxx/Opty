@@ -33,11 +33,20 @@ public class VentasController implements ModuleController {
     @FXML private TextField txtClienteDoc;
     @FXML private Label lblClienteNombre;
 
-    // --- Inputs Producto ---
+    // --- Inputs Producto (Catálogo) ---
     @FXML private ComboBox<Producto> comboProductos;
     @FXML private Label lblStockProd;
     @FXML private Label lblPrecioProd;
     @FXML private Spinner<Integer> spinCantidad;
+
+    // --- Inputs Lunas/Trabajo Personalizado ---
+    @FXML private ComboBox<String> comboCustomTrabajo;
+    @FXML private ComboBox<String> comboCustomMaterial;
+    @FXML private ComboBox<String> comboCustomLado;
+    @FXML private TextField txtCustomPrecio;
+    @FXML private TextField txtCustomDetalles;
+    @FXML private CheckBox chkCustomMonturaCliente;
+    @FXML private CheckBox chkCustomLunaCliente;
 
     // --- Carrito de Compras ---
     @FXML private TableView<VentaDetalle> tableCarrito;
@@ -47,18 +56,20 @@ public class VentasController implements ModuleController {
     @FXML private TableColumn<VentaDetalle, String> colCartSubtotal;
     @FXML private TableColumn<VentaDetalle, Void> colCartAcciones;
 
-    // --- Totales y Comprobantes ---
+    // --- Totales, Comprobantes y Abono ---
     @FXML private ComboBox<MetodoPago> comboMetodoPago;
     @FXML private ComboBox<TipoComprobante> comboComprobante;
-    
     @FXML private Label lblResSubtotal;
     @FXML private Label lblResIgv;
     @FXML private Label lblResTotal;
+    @FXML private TextField txtMontoCuenta;
+    @FXML private Label lblSaldoPendiente;
 
     // --- Servicios e Inventario ---
     private final PacienteService pacienteService = new PacienteServiceImpl();
     private final ProductoService productoService = new ProductoServiceImpl();
     private final VentaService ventaService = new VentaServiceImpl();
+    private final opty.service.ConsultaService consultaService = new opty.service.impl.ConsultaServiceImpl();
 
     private Stage stage;
     private Usuario usuario;
@@ -76,6 +87,14 @@ public class VentasController implements ModuleController {
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
         cargarProductos();
+        
+        Paciente p = UserSession.getInstance().getPacienteSeleccionado();
+        if (p != null) {
+            this.pacienteSeleccionado = p;
+            this.txtClienteDoc.setText(p.getNumDocumento());
+            this.lblClienteNombre.setText(p.nombreCompleto());
+            UserSession.getInstance().setPacienteSeleccionado(null);
+        }
     }
 
     @FXML
@@ -89,6 +108,21 @@ public class VentasController implements ModuleController {
 
         comboComprobante.setItems(FXCollections.observableArrayList(TipoComprobante.values()));
         comboComprobante.getSelectionModel().select(TipoComprobante.BOLETA);
+
+        // Configurar combos de personalización de lunas
+        var trabajos = FXCollections.observableArrayList(
+            java.util.Arrays.stream(opty.model.enums.TipoTrabajo.values())
+                .map(Enum::name)
+                .toList()
+        );
+        comboCustomTrabajo.setItems(trabajos);
+        comboCustomTrabajo.getSelectionModel().select(opty.model.enums.TipoTrabajo.LENTE_COMPLETO.name());
+
+        comboCustomMaterial.setItems(FXCollections.observableArrayList("Resina Básica", "Resina Antireflex", "Resina Blue Defense", "Policarbonato", "Vidrio"));
+        comboCustomMaterial.getSelectionModel().select("Resina Antireflex");
+
+        comboCustomLado.setItems(FXCollections.observableArrayList("Ambos Ojos (Par)", "Luna Ojo Derecho (OD)", "Luna Ojo Izquierdo (OI)", "Solo Montura"));
+        comboCustomLado.getSelectionModel().select("Ambos Ojos (Par)");
 
         // Configurar columnas de la tabla del carrito
         colCartProducto.setCellValueFactory(cell -> {
@@ -135,6 +169,15 @@ public class VentasController implements ModuleController {
                 lblStockProd.setText("-");
                 lblPrecioProd.setText("-");
             }
+        });
+
+        // Listener para abono/pago a cuenta
+        txtMontoCuenta.textProperty().addListener((obs, oldVal, newVal) -> {
+            BigDecimal total = BigDecimal.ZERO;
+            for (var item : listaCarrito) {
+                total = total.add(item.getSubtotal());
+            }
+            recalcularSaldoPendiente(total);
         });
     }
 
@@ -255,6 +298,106 @@ public class VentasController implements ModuleController {
         lblResSubtotal.setText("S/ " + subtotal.toPlainString());
         lblResIgv.setText("S/ " + igv.toPlainString());
         lblResTotal.setText("S/ " + total.setScale(2, RoundingMode.HALF_UP).toPlainString());
+        
+        recalcularSaldoPendiente(total);
+    }
+
+    private void recalcularSaldoPendiente(BigDecimal total) {
+        BigDecimal cuenta = BigDecimal.ZERO;
+        try {
+            String txt = txtMontoCuenta.getText().trim();
+            if (!txt.isEmpty()) {
+                cuenta = new BigDecimal(txt);
+            } else {
+                lblSaldoPendiente.setText("S/ 0.00");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            // ignored
+        }
+        BigDecimal saldo = total.subtract(cuenta);
+        if (saldo.compareTo(BigDecimal.ZERO) < 0) {
+            saldo = BigDecimal.ZERO;
+        }
+        lblSaldoPendiente.setText("S/ " + saldo.setScale(2, RoundingMode.HALF_UP).toPlainString());
+    }
+
+    @FXML
+    private void onAgregarCustomCarrito() {
+        var trabajo = comboCustomTrabajo.getValue();
+        var material = comboCustomMaterial.getValue();
+        var lado = comboCustomLado.getValue();
+        var precioStr = txtCustomPrecio.getText().trim();
+        var detalles = txtCustomDetalles.getText().trim();
+
+        if (trabajo == null || material == null || lado == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Campos Incompletos", "Por favor, seleccione el Tipo de Trabajo, Material y Lado/Ojo.");
+            return;
+        }
+
+        BigDecimal precio;
+        try {
+            precio = new BigDecimal(precioStr);
+            if (precio.compareTo(BigDecimal.ZERO) <= 0) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Precio inválido", "El precio de venta debe ser mayor a cero.");
+                return;
+            }
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Precio inválido", "Por favor, ingrese un precio numérico válido.");
+            return;
+        }
+
+        // Formar el nombre del producto
+        String nombreProd = lado + " - " + material;
+        if (!detalles.isEmpty()) {
+            nombreProd += " (" + detalles + ")";
+        }
+
+        try {
+            Producto prod = findOrCreateCustomProduct(nombreProd, precio);
+            
+            // Agregar al carrito
+            var det = new VentaDetalle();
+            det.setProductoId(prod.getId());
+            det.setPrecioUnitario(precio);
+            det.setCantidad(1);
+            det.setSubtotal(precio);
+            listaCarrito.add(det);
+
+            recalcularTotales();
+
+            // Limpiar inputs parciales de personalización
+            txtCustomPrecio.clear();
+            txtCustomDetalles.clear();
+            chkCustomMonturaCliente.setSelected(false);
+            chkCustomLunaCliente.setSelected(false);
+
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al crear producto", "No se pudo registrar el ítem personalizado: " + e.getMessage());
+        }
+    }
+
+    private Producto findOrCreateCustomProduct(String nombre, BigDecimal precio) {
+        var opt = productoService.findByNombreAndTienda(nombre, usuario.getTiendaId());
+        if (opt.isPresent()) {
+            return opt.get();
+        }
+
+        // Crear producto nuevo virtual para lunas/fórmulas
+        var p = new Producto();
+        p.setTiendaId(usuario.getTiendaId());
+        p.setNombre(nombre);
+        p.setPrecioVenta(precio);
+        p.setStockActual(9999);
+        p.setStockMinimo(0);
+        p.setActivo(true);
+        p.setCategoria(opty.model.enums.CategoriaProducto.LENTE);
+
+        // Generar código único temporal
+        String codigo = "TEMP-LUNA-" + System.currentTimeMillis() + "-" + (int)(100 + Math.random() * 900);
+        p.setCodigo(codigo);
+
+        return productoService.save(p);
     }
 
     @FXML
@@ -271,6 +414,17 @@ public class VentasController implements ModuleController {
         var metodo = comboMetodoPago.getValue();
         var comp = comboComprobante.getValue();
 
+        BigDecimal abono = null;
+        try {
+            String abonoText = txtMontoCuenta.getText().trim();
+            if (!abonoText.isEmpty()) {
+                abono = new BigDecimal(abonoText);
+            }
+        } catch (NumberFormatException e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Monto inválido", "El monto ingresado a cuenta no es válido.");
+            return;
+        }
+
         try {
             var venta = ventaService.registrarVentaMultiproducto(
                     pacienteSeleccionado.getId(),
@@ -278,16 +432,70 @@ public class VentasController implements ModuleController {
                     usuario.getTiendaId(),
                     comp,
                     listaCarrito,
-                    metodo.name()
+                    metodo.name(),
+                    abono
             );
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Venta Exitosa", "La venta fue registrada. Comprobante generado: " + venta.getNumeroTicket());
             
+            // Si hay ítems personalizados de tipo LENTE, crear automáticamente la Orden de Trabajo de Laboratorio
+            boolean requiereOT = false;
+            String tipoTrabajoStr = "LENTE_COMPLETO";
+            boolean usaMonturaCliente = false;
+            String detMontura = "";
+            boolean usaLunaCliente = false;
+            String detLuna = "";
+
+            if (comboCustomTrabajo.getValue() != null) {
+                boolean tieneLentes = false;
+                for (var item : listaCarrito) {
+                    var prod = cacheProductos.get(item.getProductoId());
+                    if (prod != null && prod.getCategoria() == opty.model.enums.CategoriaProducto.LENTE) {
+                        tieneLentes = true;
+                        break;
+                    }
+                }
+                if (tieneLentes) {
+                    requiereOT = true;
+                    tipoTrabajoStr = comboCustomTrabajo.getValue();
+                    usaMonturaCliente = chkCustomMonturaCliente.isSelected();
+                    detMontura = txtCustomDetalles.getText();
+                    usaLunaCliente = chkCustomLunaCliente.isSelected();
+                    detLuna = "Luna personalizada";
+                }
+            }
+
+            if (requiereOT) {
+                var otObj = new opty.model.entity.OrdenTrabajo();
+                otObj.setVentaId(venta.getId());
+                otObj.setEstadoFisico(opty.model.enums.EstadoFisicoOT.PENDIENTE);
+                otObj.setTipoTrabajo(opty.model.enums.TipoTrabajo.valueOf(tipoTrabajoStr));
+                otObj.setUsaMonturaCliente(usaMonturaCliente);
+                otObj.setDetallesMonturaCliente(detMontura.isEmpty() ? null : detMontura);
+                otObj.setUsaLunaCliente(usaLunaCliente);
+                otObj.setDetallesLunaCliente(detLuna);
+                
+                var consultas = consultaService.findByPacienteId(pacienteSeleccionado.getId());
+                if (consultas != null && !consultas.isEmpty()) {
+                    var ultimaConsulta = consultas.get(consultas.size() - 1);
+                    var hc = consultaService.findHistorialByConsultaId(ultimaConsulta.getId());
+                    if (hc != null) {
+                        otObj.setHistorialClinicoId(hc.getId());
+                    }
+                }
+                
+                otObj.setFechaPrometida(java.time.LocalDateTime.now().plusDays(3));
+                
+                var otService = new opty.service.impl.OrdenTrabajoServiceImpl();
+                otService.save(otObj);
+            }
+
             // Limpiar todo tras el registro
             listaCarrito.clear();
             pacienteSeleccionado = null;
             txtClienteDoc.clear();
             lblClienteNombre.setText("-");
+            txtMontoCuenta.clear();
             recalcularTotales();
             cargarProductos(); // Recargar catálogo para actualizar stocks
 

@@ -37,8 +37,20 @@ public class OrdenesController implements ModuleController {
     @FXML private Label lblOtFecPrometida;
 
     // --- Graduación ---
-    @FXML private Label lblOtGradOD;
-    @FXML private Label lblOtGradOI;
+    @FXML private Label lblOdEsfera;
+    @FXML private Label lblOdCilindro;
+    @FXML private Label lblOdEje;
+    @FXML private Label lblOdAdicion;
+    @FXML private Label lblOdAv;
+    @FXML private Label lblOdDp;
+
+    @FXML private Label lblOiEsfera;
+    @FXML private Label lblOiCilindro;
+    @FXML private Label lblOiEje;
+    @FXML private Label lblOiAdicion;
+    @FXML private Label lblOiAv;
+    @FXML private Label lblOiDp;
+
     @FXML private Label lblOtObservaciones;
 
     // --- Especificaciones Materiales ---
@@ -134,8 +146,8 @@ public class OrdenesController implements ModuleController {
         if (ot.getHistorialClinicoId() != null && ot.getHistorialClinicoId() > 0) {
             var hc = consultaService.findHistorialById(ot.getHistorialClinicoId());
             if (hc != null) {
-                lblOtGradOD.setText(hc.getGraduacionOd() != null && !hc.getGraduacionOd().isBlank() ? hc.getGraduacionOd() : "Sin refracción registrada");
-                lblOtGradOI.setText(hc.getGraduacionOi() != null && !hc.getGraduacionOi().isBlank() ? hc.getGraduacionOi() : "Sin refracción registrada");
+                setEyeLabels(hc.getGraduacionOd(), lblOdEsfera, lblOdCilindro, lblOdEje, lblOdAdicion, lblOdAv, lblOdDp);
+                setEyeLabels(hc.getGraduacionOi(), lblOiEsfera, lblOiCilindro, lblOiEje, lblOiAdicion, lblOiAv, lblOiDp);
                 lblOtObservaciones.setText(hc.getObservaciones() != null && !hc.getObservaciones().isBlank() ? hc.getObservaciones() : "Sin observaciones adicionales");
             } else {
                 setClinicalFallback();
@@ -174,15 +186,101 @@ public class OrdenesController implements ModuleController {
         }
     }
 
+    private void setEyeLabels(String jsonStr, Label esf, Label cil, Label eje, Label add, Label av, Label dp) {
+        if (jsonStr == null || jsonStr.isBlank()) {
+            esf.setText("-"); cil.setText("-"); eje.setText("-"); add.setText("-"); av.setText("-"); dp.setText("-");
+            return;
+        }
+        if (!jsonStr.trim().startsWith("{")) {
+            esf.setText(jsonStr);
+            cil.setText("-"); eje.setText("-"); add.setText("-"); av.setText("-"); dp.setText("-");
+            return;
+        }
+        try {
+            String valEsf = extractJsonValue(jsonStr, "esfera");
+            String valCil = extractJsonValue(jsonStr, "cilindro");
+            String valEje = extractJsonValue(jsonStr, "eje");
+            String valAdd = extractJsonValue(jsonStr, "adicion");
+            String valAv = extractJsonValue(jsonStr, "av");
+            String valDp = extractJsonValue(jsonStr, "dp");
+
+            esf.setText(valEsf.isBlank() ? "-" : valEsf);
+            cil.setText(valCil.isBlank() ? "-" : valCil);
+            eje.setText(valEje.isBlank() ? "-" : valEje);
+            add.setText(valAdd.isBlank() ? "-" : valAdd);
+            av.setText(valAv.isBlank() ? "-" : valAv);
+            dp.setText(valDp.isBlank() ? "-" : valDp);
+        } catch (Exception e) {
+            esf.setText(jsonStr);
+            cil.setText("-"); eje.setText("-"); add.setText("-"); av.setText("-"); dp.setText("-");
+        }
+    }
+
+    private String extractJsonValue(String json, String key) {
+        String pattern = "(?:\"|')?" + key + "(?:\"|')?\\s*:\\s*(?:\"([^\"]*)\"|'([^']*)'|([^,}]*))";
+        java.util.regex.Pattern r = java.util.regex.Pattern.compile(pattern);
+        java.util.regex.Matcher m = r.matcher(json);
+        if (m.find()) {
+            if (m.group(1) != null) return m.group(1).trim();
+            if (m.group(2) != null) return m.group(2).trim();
+            if (m.group(3) != null) return m.group(3).trim();
+        }
+        return "";
+    }
+
     private void setClinicalFallback() {
-        lblOtGradOD.setText("-");
-        lblOtGradOI.setText("-");
+        lblOdEsfera.setText("-"); lblOdCilindro.setText("-"); lblOdEje.setText("-"); lblOdAdicion.setText("-"); lblOdAv.setText("-"); lblOdDp.setText("-");
+        lblOiEsfera.setText("-"); lblOiCilindro.setText("-"); lblOiEje.setText("-"); lblOiAdicion.setText("-"); lblOiAv.setText("-"); lblOiDp.setText("-");
         lblOtObservaciones.setText("No hay prescripción clínica vinculada");
     }
 
     private void onActualizarEstadoOT(Integer id, EstadoFisicoOT nuevo) {
         try {
             ordenTrabajoService.actualizarEstado(id, nuevo);
+            
+            // Si el nuevo estado es ENTREGADO, verificar si hay un saldo financiero pendiente por cobrar
+            if (nuevo == EstadoFisicoOT.ENTREGADO) {
+                var otOpt = ordenTrabajoService.findById(id);
+                if (otOpt.isPresent()) {
+                    var ot = otOpt.get();
+                    if (ot.getVentaId() != null) {
+                        var ventaService = new opty.service.impl.VentaServiceImpl();
+                        var ventaOpt = ventaService.findById(ot.getVentaId());
+                        if (ventaOpt.isPresent()) {
+                            var venta = ventaOpt.get();
+                            if (venta.getEstadoFinanciero() != opty.model.enums.EstadoFinanciero.PAGADO) {
+                                java.math.BigDecimal total = venta.getMontoTotal();
+                                java.math.BigDecimal pagado = getMontoPagadoVenta(venta.getId());
+                                java.math.BigDecimal saldo = total.subtract(pagado);
+                                
+                                if (saldo.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                                    var confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                                    confirm.setTitle("Saldo Pendiente de Cobro");
+                                    confirm.setHeaderText("La venta asociada #" + venta.getNumeroTicket() + " tiene un saldo pendiente de S/ " + saldo.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString());
+                                    confirm.setContentText("¿Desea registrar el cobro del saldo restante de S/ " + saldo.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString() + " en este momento para marcar la venta como totalmente cancelada (PAGADA)?");
+                                    confirm.initOwner(stage);
+                                    
+                                    var btnSi = new ButtonType("Sí, Cobrar");
+                                    var btnNo = new ButtonType("No, Mantener Pendiente");
+                                    confirm.getButtonTypes().setAll(btnSi, btnNo);
+                                    
+                                    var res = confirm.showAndWait();
+                                    if (res.isPresent() && res.get() == btnSi) {
+                                        registrarPagoSaldoVenta(venta.getId(), venta.getTiendaId(), venta.getUsuarioId(), saldo);
+                                        
+                                        var okAlert = new Alert(Alert.AlertType.INFORMATION);
+                                        okAlert.setTitle("Cobro Registrado");
+                                        okAlert.setHeaderText(null);
+                                        okAlert.setContentText("Se registró el cobro por S/ " + saldo.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString() + " en caja. La venta se marcó como PAGADA.");
+                                        okAlert.initOwner(stage);
+                                        okAlert.showAndWait();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             
             // Recargar la tabla y seleccionar el mismo elemento para refrescar detalles
             var list = ordenTrabajoService.findAll();
@@ -202,6 +300,61 @@ public class OrdenesController implements ModuleController {
             alert.setContentText("No se pudo cambiar el estado de la orden: " + e.getMessage());
             alert.initOwner(stage);
             alert.showAndWait();
+        }
+    }
+
+    private java.math.BigDecimal getMontoPagadoVenta(Integer ventaId) {
+        java.math.BigDecimal sum = java.math.BigDecimal.ZERO;
+        String sql = "SELECT SUM(monto) FROM movimientos_caja WHERE venta_id = ? AND tipo = 'ENTRADA'";
+        try (var conn = opty.config.DatabaseConfig.getConnection();
+             var ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, ventaId);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    java.math.BigDecimal res = rs.getBigDecimal(1);
+                    if (res != null) {
+                        sum = res;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sum;
+    }
+
+    private void registrarPagoSaldoVenta(Integer ventaId, Integer tiendaId, Integer usuarioId, java.math.BigDecimal saldo) {
+        String insertCaja = "INSERT INTO movimientos_caja (tienda_id, usuario_id, venta_id, tipo, metodo_pago, monto, descripcion) VALUES (?, ?, ?, 'ENTRADA', 'EFECTIVO', ?, 'Cobro de saldo restante al entregar orden de trabajo')";
+        String updateCab = "UPDATE ventas_cabecera SET estado_financiero = 'PAGADO' WHERE id = ?";
+        
+        java.sql.Connection conn = null;
+        try {
+            conn = opty.config.DatabaseConfig.getConnection();
+            conn.setAutoCommit(false);
+            
+            try (var psCaja = conn.prepareStatement(insertCaja)) {
+                psCaja.setInt(1, tiendaId);
+                psCaja.setInt(2, usuarioId);
+                psCaja.setInt(3, ventaId);
+                psCaja.setBigDecimal(4, saldo);
+                psCaja.executeUpdate();
+            }
+            
+            try (var psUpdate = conn.prepareStatement(updateCab)) {
+                psUpdate.setInt(1, ventaId);
+                psUpdate.executeUpdate();
+            }
+            
+            conn.commit();
+        } catch (Exception e) {
+            if (conn != null) {
+                try { conn.rollback(); } catch (Exception ex) { ex.printStackTrace(); }
+            }
+            throw new RuntimeException("Error al registrar cobro de saldo", e);
+        } finally {
+            if (conn != null) {
+                try { conn.close(); } catch (Exception ex) { ex.printStackTrace(); }
+            }
         }
     }
 
